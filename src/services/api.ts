@@ -3,6 +3,13 @@ import type {
   AuthRequest,
   SignUpRequest,
   AuthResponse,
+  SignUpResponse,
+  RefreshTokenRequest,
+  RefreshTokenResponse,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  VerifyEmailRequest,
+  AuthMessageResponse,
   Vendor,
   VendorCreateRequest,
   VendorUpdateRequest,
@@ -26,18 +33,13 @@ import type {
 
 import { VendorSize, PricingModel, VerificationStatus, VendorStatus, VendorClaimStatus, VerificationMethod } from '../types/api'
 
-// Mock data for development
-const mockUser: User = {
+// Mock user data for demo requests (keeping old structure for compatibility)
+const mockDemoUser = {
   id: '1',
-  email: 'john.doe@firstnational.com',
   firstName: 'John',
   lastName: 'Doe',
   title: 'CTO',
-  bankName: 'First National Bank',
-  accountType: 'bank',
-  isVerified: true,
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z'
+  email: 'john.doe@firstnational.com'
 }
 
 const mockVendors: Vendor[] = [
@@ -87,7 +89,7 @@ const mockVendors: Vendor[] = [
 
 // API Service Class
 export class ApiService {
-  private baseUrl = '/api'
+  private baseUrl = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/auth'
 
   private async mockApiCall<T>(data: T, delay = 1000): Promise<ApiResponse<T>> {
     await new Promise(resolve => setTimeout(resolve, delay))
@@ -97,34 +99,133 @@ export class ApiService {
     }
   }
 
+  private async makeRequest<T>(endpoint: string, options: RequestInit = {}, retryCount = 0): Promise<ApiResponse<T>> {
+    try {
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        ...options,
+      })
+
+      const data = await response.json()
+
+      // Handle 401 Unauthorized - try to refresh token
+      if (response.status === 401 && retryCount === 0) {
+        const refreshToken = localStorage.getItem('auth_refresh_token')
+        if (refreshToken) {
+          try {
+            const refreshResponse = await this.refreshToken({ refreshToken })
+            if (refreshResponse.success) {
+              // Update the authorization header and retry the request
+              const newOptions = {
+                ...options,
+                headers: {
+                  ...options.headers,
+                  'Authorization': `Bearer ${refreshResponse.data.access_token}`
+                }
+              }
+              return this.makeRequest<T>(endpoint, newOptions, 1)
+            }
+          } catch (refreshError) {
+            console.error('Token refresh failed:', refreshError)
+          }
+        }
+        
+        // If refresh fails or no refresh token, clear auth and redirect
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('auth_refresh_token')
+        localStorage.removeItem('auth_user')
+        window.location.href = '/auth/signin'
+      }
+
+      if (!response.ok) {
+        return {
+          success: false,
+          data: data as T,
+          error: data.message || 'Request failed'
+        }
+      }
+
+      return {
+        success: true,
+        data: data as T
+      }
+    } catch (error) {
+      return {
+        success: false,
+        data: {} as T,
+        error: error instanceof Error ? error.message : 'Network error'
+      }
+    }
+  }
+
   // Authentication
   async signIn(request: AuthRequest): Promise<ApiResponse<AuthResponse>> {
-    return this.mockApiCall({
-      user: mockUser,
-      token: 'mock-jwt-token',
-      refreshToken: 'mock-refresh-token'
+    return this.makeRequest<AuthResponse>('/signin', {
+      method: 'POST',
+      body: JSON.stringify(request)
     })
   }
 
-  async signUp(request: SignUpRequest): Promise<ApiResponse<AuthResponse>> {
-    const newUser: User = {
-      ...mockUser,
-      ...request,
-      id: Math.random().toString(),
-      isVerified: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
+  async signUp(request: SignUpRequest): Promise<ApiResponse<SignUpResponse>> {
+    return this.makeRequest<SignUpResponse>('/signup', {
+      method: 'POST',
+      body: JSON.stringify(request)
+    })
+  }
 
-    return this.mockApiCall({
-      user: newUser,
-      token: 'mock-jwt-token',
-      refreshToken: 'mock-refresh-token'
+  async refreshToken(request: RefreshTokenRequest): Promise<ApiResponse<RefreshTokenResponse>> {
+    return this.makeRequest<RefreshTokenResponse>('/refresh', {
+      method: 'POST',
+      body: JSON.stringify(request)
+    })
+  }
+
+  async forgotPassword(request: ForgotPasswordRequest): Promise<ApiResponse<AuthMessageResponse>> {
+    return this.makeRequest<AuthMessageResponse>('/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify(request)
+    })
+  }
+
+  async resetPassword(request: ResetPasswordRequest): Promise<ApiResponse<AuthMessageResponse>> {
+    return this.makeRequest<AuthMessageResponse>('/reset-password', {
+      method: 'POST',
+      body: JSON.stringify(request)
+    })
+  }
+
+  async verifyEmail(request: VerifyEmailRequest): Promise<ApiResponse<AuthMessageResponse>> {
+    return this.makeRequest<AuthMessageResponse>('/verify-email', {
+      method: 'POST',
+      body: JSON.stringify(request)
+    })
+  }
+
+  async resendVerificationEmail(email: string): Promise<ApiResponse<AuthMessageResponse>> {
+    return this.makeRequest<AuthMessageResponse>(`/resend-verification?email=${encodeURIComponent(email)}`, {
+      method: 'POST'
     })
   }
 
   async getCurrentUser(): Promise<ApiResponse<User>> {
-    return this.mockApiCall(mockUser)
+    const token = localStorage.getItem('auth_token')
+    if (!token) {
+      return {
+        success: false,
+        data: {} as User,
+        error: 'No token found'
+      }
+    }
+
+    return this.makeRequest<User>('/profile', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
   }
 
   // Vendors
@@ -192,7 +293,7 @@ export class ApiService {
     const demoRequest: DemoRequest = {
       id: Math.random().toString(),
       ...request,
-      userId: mockUser.id,
+      userId: mockDemoUser.id,
       status: 'pending',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -205,7 +306,7 @@ export class ApiService {
       {
         id: '1',
         vendorId: '1',
-        userId: mockUser.id,
+        userId: mockDemoUser.id,
         status: 'pending',
         firstName: 'Jane',
         lastName: 'Smith',
@@ -235,7 +336,7 @@ export class ApiService {
       {
         id: '1',
         vendorId,
-        userId: mockUser.id,
+        userId: mockDemoUser.id,
         reviewer: 'Sarah Johnson',
         title: 'CTO, First National Bank',
         rating: 5,
@@ -254,9 +355,9 @@ export class ApiService {
     const review: Review = {
       id: Math.random().toString(),
       ...request,
-      userId: mockUser.id,
-      reviewer: `${mockUser.firstName} ${mockUser.lastName}`,
-      title: mockUser.title,
+      userId: mockDemoUser.id,
+      reviewer: `${mockDemoUser.firstName} ${mockDemoUser.lastName}`,
+      title: mockDemoUser.title,
       isVerified: true,
       isAnonymous: request.isAnonymous || false,
       date: new Date().toISOString().split('T')[0],
@@ -293,7 +394,7 @@ export class ApiService {
     const accessRequest: DocumentAccessRequest = {
       id: Math.random().toString(),
       ...request,
-      userId: mockUser.id,
+      userId: mockDemoUser.id,
       status: 'pending',
       requestedAt: new Date().toISOString()
     }
@@ -305,7 +406,7 @@ export class ApiService {
     const claim: VendorClaim = {
       id: Math.random().toString(),
       ...request,
-      userId: mockUser.id,
+      userId: mockDemoUser.id,
       status: VendorClaimStatus.pending,
       verificationMethod: request.verificationMethod,
       submittedAt: new Date().toISOString()
@@ -318,7 +419,7 @@ export class ApiService {
       {
         id: '1',
         vendorId: '1',
-        userId: mockUser.id,
+        userId: mockDemoUser.id,
         status: VendorClaimStatus.approved,
         firstName: 'John',
         lastName: 'Doe',
@@ -397,7 +498,7 @@ export class ApiService {
     const claim = {
       id: claimId,
       vendorId: '1',
-      userId: mockUser.id,
+        userId: mockDemoUser.id,
       status: approved ? VendorClaimStatus.approved : VendorClaimStatus.rejected,
       firstName: 'John',
       lastName: 'Doe',
@@ -408,7 +509,7 @@ export class ApiService {
       verificationMethod: VerificationMethod.email,
       submittedAt: '2024-01-10T00:00:00Z',
       reviewedAt: new Date().toISOString(),
-      reviewedBy: mockUser.id,
+      reviewedBy: mockDemoUser.id,
       rejectionReason: reason
     }
     return this.mockApiCall(claim)
@@ -444,7 +545,7 @@ export class ApiService {
     const notifications: Notification[] = [
       {
         id: '1',
-        userId: mockUser.id,
+        userId: mockDemoUser.id,
         type: 'demo_request',
         title: 'New Demo Request',
         message: 'Community Bank requested a demo for your Core Banking solution',

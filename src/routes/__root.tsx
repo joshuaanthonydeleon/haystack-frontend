@@ -9,6 +9,7 @@ import { TanstackDevtools } from '@tanstack/react-devtools'
 import Header from '../components/Header'
 import { AuthProvider } from '../contexts/AuthContext'
 import { NotFound } from '../components/NotFound'
+import { TokenManager } from '../components/TokenManager'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
@@ -28,6 +29,7 @@ const RootDocument = ({ children }: { children: React.ReactNode }) => {
       </head>
       <body>
         <AuthProvider>
+          <TokenManager />
           <Header />
           {children}
         </AuthProvider>

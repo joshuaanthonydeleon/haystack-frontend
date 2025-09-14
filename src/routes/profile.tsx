@@ -3,9 +3,6 @@ import { User, Mail, Phone, Building2, Calendar, Edit, Settings } from 'lucide-r
 import { Button } from '../components/ui/button'
 import { useAuth } from '../contexts/AuthContext'
 
-export const Route = createFileRoute('/profile')({
-  component: UserProfile,
-})
 
 const UserProfile = () => {
   const { user } = useAuth()
@@ -32,11 +29,11 @@ const UserProfile = () => {
               <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
                 <User className="w-12 h-12 text-blue-600" />
               </div>
-              
+
               {/* User Info */}
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  {user.name}
+                  {user.firstName} {user.lastName}
                 </h1>
                 <p className="text-gray-600 mb-2">
                   {user.email}
@@ -44,7 +41,7 @@ const UserProfile = () => {
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <span className="inline-flex items-center gap-1">
                     <Building2 className="w-4 h-4" />
-                    {user.accountType}
+                    {user.role}
                   </span>
                   <span className="inline-flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
@@ -53,7 +50,7 @@ const UserProfile = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* Edit Button */}
             <Button variant="outline" className="flex items-center space-x-2">
               <Edit className="w-4 h-4" />
@@ -77,7 +74,7 @@ const UserProfile = () => {
                   <p className="text-gray-900">{user.email}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-gray-400" />
                 <div>
@@ -98,16 +95,16 @@ const UserProfile = () => {
                 <Building2 className="w-5 h-5 text-gray-400" />
                 <div>
                   <p className="text-sm text-gray-500">Account Type</p>
-                  <p className="text-gray-900 capitalize">{user.accountType}</p>
+                  <p className="text-gray-900 capitalize">{user.role}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-3">
                 <Settings className="w-5 h-5 text-gray-400" />
                 <div>
                   <p className="text-sm text-gray-500">Roles</p>
                   <p className="text-gray-900">
-                    {user.roles ? user.roles.join(', ') : 'Standard User'}
+                    {user.role}
                   </p>
                 </div>
               </div>
@@ -116,7 +113,7 @@ const UserProfile = () => {
         </div>
 
         {/* Account-specific sections */}
-        {user.accountType === 'vendor' && (
+        {user.role === 'vendor' && (
           <div className="bg-white rounded-lg shadow-sm border p-6 mt-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Vendor Information
@@ -133,3 +130,7 @@ const UserProfile = () => {
     </div>
   )
 }
+
+export const Route = createFileRoute('/profile')({
+  component: UserProfile,
+})

@@ -1,18 +1,20 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import type { User, AuthRequest, SignUpRequest } from '../types/api'
 import { apiService } from '../services/api'
 
 interface AuthContextType {
   user: User | null
   token: string | null
+  refreshToken: string | null
   isAuthenticated: boolean
   isLoading: boolean
   signIn: (credentials: AuthRequest) => Promise<void>
   signUp: (userData: SignUpRequest) => Promise<void>
   signOut: () => void
-  hasRole: (role: User['accountType'] | User['accountType'][]) => boolean
+  hasRole: (role: User['role'] | User['role'][]) => boolean
   getDashboardRoute: () => string
   refreshUser: () => Promise<void>
+  refreshAuthToken: () => Promise<boolean>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -24,6 +26,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
+  const [refreshToken, setRefreshToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   // Initialize auth state from localStorage
@@ -31,23 +34,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const initializeAuth = async () => {
       try {
         const storedToken = localStorage.getItem('auth_token')
+        const storedRefreshToken = localStorage.getItem('auth_refresh_token')
         const storedUser = localStorage.getItem('auth_user')
         
-        if (storedToken && storedUser) {
+        if (storedToken && storedRefreshToken && storedUser) {
           setToken(storedToken)
+          setRefreshToken(storedRefreshToken)
           setUser(JSON.parse(storedUser))
           
-          // Optionally validate token with backend
+          // Validate token with backend
           try {
             const response = await apiService.getCurrentUser()
             if (response.success) {
               setUser(response.data)
               localStorage.setItem('auth_user', JSON.stringify(response.data))
+            } else {
+              // Token might be expired, try to refresh
+              const refreshSuccess = await refreshAuthToken()
+              if (!refreshSuccess) {
+                signOut()
+              }
             }
           } catch (error) {
-            // Token might be invalid, clear auth state
-            console.warn('Failed to validate stored token:', error)
-            signOut()
+            // Token might be invalid, try to refresh
+            const refreshSuccess = await refreshAuthToken()
+            if (!refreshSuccess) {
+              signOut()
+            }
           }
         }
       } catch (error) {
@@ -67,12 +80,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await apiService.signIn(credentials)
       
       if (response.success) {
-        const { user, token } = response.data
+        const { user, access_token, refresh_token } = response.data
         setUser(user)
-        setToken(token)
+        setToken(access_token)
+        setRefreshToken(refresh_token)
         
         // Store in localStorage for persistence
-        localStorage.setItem('auth_token', token)
+        localStorage.setItem('auth_token', access_token)
+        localStorage.setItem('auth_refresh_token', refresh_token)
         localStorage.setItem('auth_user', JSON.stringify(user))
       } else {
         throw new Error(response.error || 'Authentication failed')
@@ -91,13 +106,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await apiService.signUp(userData)
       
       if (response.success) {
-        const { user, token } = response.data
+        const { user, access_token, refresh_token, message } = response.data
         setUser(user)
-        setToken(token)
+        setToken(access_token)
+        setRefreshToken(refresh_token)
         
-        // Store in localStorage for persistence
-        localStorage.setItem('auth_token', token)
+        // Store authentication data for immediate access
+        localStorage.setItem('auth_token', access_token)
+        localStorage.setItem('auth_refresh_token', refresh_token)
         localStorage.setItem('auth_user', JSON.stringify(user))
+        
+        // Show success message
+        console.log(message)
       } else {
         throw new Error(response.error || 'Registration failed')
       }
@@ -112,33 +132,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signOut = () => {
     setUser(null)
     setToken(null)
+    setRefreshToken(null)
     localStorage.removeItem('auth_token')
+    localStorage.removeItem('auth_refresh_token')
     localStorage.removeItem('auth_user')
   }
 
-  const hasRole = (role: User['accountType'] | User['accountType'][]): boolean => {
+  const hasRole = (role: User['role'] | User['role'][]): boolean => {
     if (!user) return false
     
     if (Array.isArray(role)) {
-      return role.includes(user.accountType)
+      return role.includes(user.role)
     }
     
-    return user.accountType === role
+    return user.role === role
   }
 
   const getDashboardRoute = (): string => {
     if (!user) return '/'
     
-    switch (user.accountType) {
+    switch (user.role) {
       case 'admin':
         return '/admin/dashboard'
       case 'vendor':
         return '/vendor/dashboard'
-      case 'bank':
-      case 'credit-union':
-        return '/dashboard'
       default:
-        return '/'
+        return '/dashboard'
     }
   }
 
@@ -158,11 +177,35 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  const refreshAuthToken = async (): Promise<boolean> => {
+    if (!refreshToken) return false
+    
+    try {
+      const response = await apiService.refreshToken({ refreshToken })
+      if (response.success) {
+        const { access_token, refresh_token } = response.data
+        setToken(access_token)
+        setRefreshToken(refresh_token)
+        
+        // Update localStorage
+        localStorage.setItem('auth_token', access_token)
+        localStorage.setItem('auth_refresh_token', refresh_token)
+        
+        return true
+      }
+    } catch (error) {
+      console.error('Failed to refresh token:', error)
+    }
+    
+    return false
+  }
+
   const isAuthenticated = !!user && !!token
 
   const value: AuthContextType = {
     user,
     token,
+    refreshToken,
     isAuthenticated,
     isLoading,
     signIn,
@@ -170,7 +213,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signOut,
     hasRole,
     getDashboardRoute,
-    refreshUser
+    refreshUser,
+    refreshAuthToken
   }
 
   return (
@@ -194,7 +238,7 @@ export function useRequireAuth() {
   return { isAuthenticated, isLoading }
 }
 
-export function useRequireRole(requiredRole: User['accountType'] | User['accountType'][]) {
+export function useRequireRole(requiredRole: User['role'] | User['role'][]) {
   const { user, isAuthenticated, hasRole, isLoading } = useAuth()
   
   return {

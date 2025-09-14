@@ -24,8 +24,11 @@ import { Route as ProductProductIdRouteImport } from './routes/product.$productI
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
 import { Route as DemoTableRouteImport } from './routes/demo.table'
 import { Route as ComplianceVendorIdRouteImport } from './routes/compliance.$vendorId'
+import { Route as AuthVerifyEmailRouteImport } from './routes/auth.verify-email'
 import { Route as AuthSignupRouteImport } from './routes/auth.signup'
 import { Route as AuthSigninRouteImport } from './routes/auth.signin'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo.start.api-request'
@@ -102,6 +105,11 @@ const ComplianceVendorIdRoute = ComplianceVendorIdRouteImport.update({
   path: '/compliance/$vendorId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
+  id: '/auth/verify-email',
+  path: '/auth/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/auth/signup',
   path: '/auth/signup',
@@ -110,6 +118,16 @@ const AuthSignupRoute = AuthSignupRouteImport.update({
 const AuthSigninRoute = AuthSigninRouteImport.update({
   id: '/auth/signin',
   path: '/auth/signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/auth/reset-password',
+  path: '/auth/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
+  id: '/auth/forgot-password',
+  path: '/auth/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
@@ -161,8 +179,11 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/vendors': typeof VendorsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signin': typeof AuthSigninRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/compliance/$vendorId': typeof ComplianceVendorIdRoute
   '/demo/table': typeof DemoTableRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -184,8 +205,11 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/vendors': typeof VendorsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signin': typeof AuthSigninRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/compliance/$vendorId': typeof ComplianceVendorIdRoute
   '/demo/table': typeof DemoTableRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -208,8 +232,11 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/vendors': typeof VendorsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signin': typeof AuthSigninRoute
   '/auth/signup': typeof AuthSignupRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/compliance/$vendorId': typeof ComplianceVendorIdRoute
   '/demo/table': typeof DemoTableRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -233,8 +260,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/vendors'
     | '/admin/dashboard'
+    | '/auth/forgot-password'
+    | '/auth/reset-password'
     | '/auth/signin'
     | '/auth/signup'
+    | '/auth/verify-email'
     | '/compliance/$vendorId'
     | '/demo/table'
     | '/demo/tanstack-query'
@@ -256,8 +286,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/vendors'
     | '/admin/dashboard'
+    | '/auth/forgot-password'
+    | '/auth/reset-password'
     | '/auth/signin'
     | '/auth/signup'
+    | '/auth/verify-email'
     | '/compliance/$vendorId'
     | '/demo/table'
     | '/demo/tanstack-query'
@@ -279,8 +312,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/vendors'
     | '/admin/dashboard'
+    | '/auth/forgot-password'
+    | '/auth/reset-password'
     | '/auth/signin'
     | '/auth/signup'
+    | '/auth/verify-email'
     | '/compliance/$vendorId'
     | '/demo/table'
     | '/demo/tanstack-query'
@@ -303,8 +339,11 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   VendorsRoute: typeof VendorsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSigninRoute: typeof AuthSigninRoute
   AuthSignupRoute: typeof AuthSignupRoute
+  AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
   ComplianceVendorIdRoute: typeof ComplianceVendorIdRoute
   DemoTableRoute: typeof DemoTableRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
@@ -437,6 +476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComplianceVendorIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/verify-email': {
+      id: '/auth/verify-email'
+      path: '/auth/verify-email'
+      fullPath: '/auth/verify-email'
+      preLoaderRoute: typeof AuthVerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/signup': {
       id: '/auth/signup'
       path: '/auth/signup'
@@ -449,6 +495,20 @@ declare module '@tanstack/react-router' {
       path: '/auth/signin'
       fullPath: '/auth/signin'
       preLoaderRoute: typeof AuthSigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/auth/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/dashboard': {
@@ -522,8 +582,11 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   VendorsRoute: VendorsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSigninRoute: AuthSigninRoute,
   AuthSignupRoute: AuthSignupRoute,
+  AuthVerifyEmailRoute: AuthVerifyEmailRoute,
   ComplianceVendorIdRoute: ComplianceVendorIdRoute,
   DemoTableRoute: DemoTableRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,

@@ -5,15 +5,6 @@ import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { useAuth } from '../contexts/AuthContext'
 
-export const Route = createFileRoute('/auth/signin')({
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      redirect: (search.redirect as string) || '/dashboard'
-    }
-  },
-  component: SignIn,
-})
-
 const SignIn = () => {
   const navigate = useNavigate()
   const search = useSearch({ from: '/auth/signin' })
@@ -34,7 +25,7 @@ const SignIn = () => {
     e.preventDefault()
     setLoading(true)
     setError('')
-    
+
     try {
       await signIn({ email, password })
       navigate({ to: getDashboardRoute() })
@@ -116,9 +107,12 @@ const SignIn = () => {
             </div>
 
             <div className="text-sm">
-              <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+              <Link
+                to="/auth/forgot-password"
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
                 Forgot your password?
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -148,3 +142,12 @@ const SignIn = () => {
     </div>
   )
 }
+
+export const Route = createFileRoute('/auth/signin')({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      redirect: (search.redirect as string) || '/dashboard'
+    }
+  },
+  component: SignIn,
+})

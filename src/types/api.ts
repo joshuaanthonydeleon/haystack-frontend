@@ -1,15 +1,25 @@
 // User & Authentication Types
 export interface User {
-  id: string
+  id: number
   email: string
-  firstName: string
-  lastName: string
-  title: string
-  bankName?: string
-  accountType: 'bank' | 'credit-union' | 'vendor' | 'admin'
-  isVerified: boolean
+  role: 'admin' | 'vendor'
+  isEmailVerified: boolean
   createdAt: string
   updatedAt: string
+  firstName: string
+  lastName: string
+  phone: string
+  address: string
+  city: string
+  state: string
+  zip: string
+  country: string
+  website?: string
+  linkedinProfile?: string
+  facebookProfile?: string
+  twitterProfile?: string
+  instagramProfile?: string
+  youtubeProfile?: string
 }
 
 export interface AuthRequest {
@@ -17,18 +27,57 @@ export interface AuthRequest {
   password: string
 }
 
-export interface SignUpRequest extends AuthRequest {
+export interface SignUpRequest {
+  email: string
+  password: string
+  role: 'admin' | 'vendor'
   firstName: string
   lastName: string
-  bankName: string
-  title: string
-  accountType: 'bank' | 'credit-union' | 'vendor' | 'admin'
+  phone: string
+  address: string
+  city: string
+  state: string
+  zip: string
+  country: string
 }
 
 export interface AuthResponse {
   user: User
-  token: string
+  access_token: string
+  refresh_token: string
+}
+
+export interface SignUpResponse {
+  user: User
+  access_token: string
+  refresh_token: string
+  message: string
+}
+
+export interface RefreshTokenRequest {
   refreshToken: string
+}
+
+export interface RefreshTokenResponse {
+  access_token: string
+  refresh_token: string
+}
+
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface ResetPasswordRequest {
+  token: string
+  newPassword: string
+}
+
+export interface VerifyEmailRequest {
+  token: string
+}
+
+export interface AuthMessageResponse {
+  message: string
 }
 
 
