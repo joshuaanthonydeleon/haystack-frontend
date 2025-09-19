@@ -1,14 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { 
-  Star, 
-  MapPin, 
-  Users, 
-  Calendar, 
-  ExternalLink, 
-  FileText, 
-  Shield, 
-  Award,
+import {
+  Star,
+  MapPin,
+  Users,
+  Calendar,
+  FileText,
+  Shield,
   Building2,
   Phone,
   Mail,
@@ -18,10 +16,6 @@ import {
 import { Button } from '../components/ui/button'
 import { DemoRequestModal } from '../components/DemoRequestModal'
 import { useVendor } from '../queries/vendors'
-
-export const Route = createFileRoute('/vendor/$vendorId')({
-  component: VendorProfile,
-})
 
 const VendorProfile = () => {
   const { vendorId } = Route.useParams()
@@ -100,9 +94,9 @@ const VendorProfile = () => {
         return (
           <div className="space-y-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">About {vendor.name}</h3>
+              <h3 className="text-lg font-semibold mb-4">About {vendor.companyName}</h3>
               <div className="prose prose-gray max-w-none">
-                {vendor.longDescription.split('\n\n').map((paragraph, index) => (
+                {vendor.profile?.detailedDescription?.split('\n\n').map((paragraph, index) => (
                   <p key={index} className="text-gray-600 mb-4">{paragraph}</p>
                 ))}
               </div>
@@ -112,7 +106,7 @@ const VendorProfile = () => {
               <div>
                 <h4 className="font-semibold mb-3">Key Features</h4>
                 <ul className="space-y-2">
-                  {vendor.features.map((feature, index) => (
+                  {vendor.profile?.features?.map((feature, index) => (
                     <li key={index} className="flex items-center text-sm text-gray-600">
                       <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mr-2"></div>
                       {feature}
@@ -124,7 +118,7 @@ const VendorProfile = () => {
               <div>
                 <h4 className="font-semibold mb-3">Integrations</h4>
                 <ul className="space-y-2">
-                  {vendor.integrations.map((integration, index) => (
+                  {vendor.profile?.integrations?.map((integration, index) => (
                     <li key={index} className="flex items-center text-sm text-gray-600">
                       <div className="w-1.5 h-1.5 bg-green-600 rounded-full mr-2"></div>
                       {integration}
@@ -142,7 +136,7 @@ const VendorProfile = () => {
             <div>
               <h3 className="text-lg font-semibold mb-4">Detailed Features</h3>
               <div className="grid gap-4">
-                {vendor.features.map((feature, index) => (
+                {vendor.profile?.features?.map((feature, index) => (
                   <div key={index} className="border rounded-lg p-4">
                     <h4 className="font-medium text-gray-900 mb-2">{feature}</h4>
                     <p className="text-sm text-gray-600">
@@ -176,9 +170,9 @@ const VendorProfile = () => {
                     <div className="text-right">
                       <div className="flex items-center gap-1">
                         {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                          <Star
+                            key={i}
+                            className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
                           />
                         ))}
                       </div>
@@ -198,7 +192,7 @@ const VendorProfile = () => {
             <div>
               <h3 className="text-lg font-semibold mb-4">Certifications & Compliance</h3>
               <div className="grid md:grid-cols-2 gap-4">
-                {vendor.certifications.map((cert, index) => (
+                {vendor.profile?.certifications?.map((cert, index) => (
                   <div key={index} className="flex items-center border rounded-lg p-4">
                     <Shield className="w-8 h-8 text-green-600 mr-3" />
                     <div>
@@ -213,7 +207,7 @@ const VendorProfile = () => {
             <div>
               <h4 className="font-semibold mb-3">Ideal Client Profile</h4>
               <div className="space-y-2">
-                {vendor.clientSize.map((size, index) => (
+                {vendor.profile?.clientSize?.map((size, index) => (
                   <div key={index} className="flex items-center text-sm text-gray-600">
                     <Building2 className="w-4 h-4 mr-2 text-blue-600" />
                     {size}
@@ -245,46 +239,46 @@ const VendorProfile = () => {
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    {vendor.name}
+                    {vendor.companyName}
                   </h1>
                   <div className="flex items-center gap-6 text-gray-600 mb-3">
                     <span className="inline-flex items-center gap-2">
                       <Building2 className="w-4 h-4" />
-                      {vendor.category}
+                      {vendor.profile?.category}
                     </span>
                     <span className="inline-flex items-center gap-2">
                       <MapPin className="w-4 h-4" />
-                      {vendor.location}
+                      {vendor.profile?.location}
                     </span>
                     <span className="inline-flex items-center gap-2">
                       <Users className="w-4 h-4" />
-                      {vendor.employees} employees
+                      {vendor.profile?.employees} employees
                     </span>
                     <span className="inline-flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
-                      Founded {vendor.founded}
+                      Founded {vendor.profile?.founded}
                     </span>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="flex items-center gap-1 mb-2">
                     <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                    <span className="text-xl font-semibold">{vendor.rating}</span>
-                    <span className="text-gray-600">({vendor.reviewCount} reviews)</span>
+                    <span className="text-xl font-semibold">{vendor.profile?.rating}</span>
+                    <span className="text-gray-600">({vendor.ratings.length} reviews)</span>
                   </div>
                   <div className="text-green-600 font-semibold">
-                    {vendor.compatibility}% Compatibility Match
+                    {vendor.profile?.compatibility}% Compatibility Match
                   </div>
                 </div>
               </div>
 
               <p className="text-gray-700 mb-6">
-                {vendor.description}
+                {vendor.profile?.summary}
               </p>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2 mb-6">
-                {vendor.tags.map((tag) => (
+                {vendor.profile?.tags?.map((tag) => (
                   <span
                     key={tag}
                     className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
@@ -300,14 +294,18 @@ const VendorProfile = () => {
                   <Globe className="w-4 h-4" />
                   Website
                 </a>
-                <a href={`tel:${vendor.phone}`} className="inline-flex items-center gap-1 hover:text-blue-600">
-                  <Phone className="w-4 h-4" />
-                  {vendor.phone}
-                </a>
-                <a href={`mailto:${vendor.email}`} className="inline-flex items-center gap-1 hover:text-blue-600">
-                  <Mail className="w-4 h-4" />
-                  Contact
-                </a>
+                {vendor.profile?.phone && (
+                  <a href={`tel:${vendor.profile?.phone}`} className="inline-flex items-center gap-1 hover:text-blue-600">
+                    <Phone className="w-4 h-4" />
+                    {vendor.profile?.phone}
+                  </a>
+                )}
+                {vendor.profile?.email && (
+                  <a href={`mailto:${vendor.profile?.email}`} className="inline-flex items-center gap-1 hover:text-blue-600">
+                    <Mail className="w-4 h-4" />
+                    Contact
+                  </a>
+                )}
               </div>
 
               {/* Action Buttons */}
@@ -335,11 +333,10 @@ const VendorProfile = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
                 >
                   {tab.label}
                 </button>
@@ -355,7 +352,7 @@ const VendorProfile = () => {
 
         {/* Demo Request Modal */}
         <DemoRequestModal
-          vendor={{ name: vendor.name, category: vendor.category }}
+          vendor={{ name: vendor.companyName, category: vendor.profile?.category ?? '' }}
           isOpen={demoModalOpen}
           onClose={() => setDemoModalOpen(false)}
         />
@@ -363,3 +360,7 @@ const VendorProfile = () => {
     </div>
   )
 }
+
+export const Route = createFileRoute('/vendor/$vendorId')({
+  component: VendorProfile,
+})

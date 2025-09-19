@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import { Calendar, Clock, User, Building2, Mail, Phone } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Calendar, Clock, User, Building2 } from 'lucide-react'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from './ui/dialog'
+import { useAuth } from '../contexts/AuthContext'
 
 interface DemoRequestModalProps {
   vendor: {
@@ -16,12 +17,13 @@ interface DemoRequestModalProps {
 }
 
 export function DemoRequestModal({ vendor, isOpen, onClose }: DemoRequestModalProps) {
+  const { user, isAuthenticated } = useAuth()
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
-    bankName: '',
+    institutionName: '',
     title: '',
     assetsUnderManagement: '',
     currentProvider: '',
@@ -31,6 +33,22 @@ export function DemoRequestModal({ vendor, isOpen, onClose }: DemoRequestModalPr
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (!isOpen || !isAuthenticated || !user) {
+      return
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      firstName: prev.firstName || user.firstName || '',
+      lastName: prev.lastName || user.lastName || '',
+      email: prev.email || user.email || '',
+      phone: prev.phone || user.phone || '',
+      institutionName: prev.institutionName || user.institutionName || '',
+      title: prev.title || user.title || '',
+    }))
+  }, [isOpen, isAuthenticated, user])
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -50,7 +68,7 @@ export function DemoRequestModal({ vendor, isOpen, onClose }: DemoRequestModalPr
         lastName: '',
         email: '',
         phone: '',
-        bankName: '',
+        institutionName: '',
         title: '',
         assetsUnderManagement: '',
         currentProvider: '',
@@ -156,18 +174,18 @@ export function DemoRequestModal({ vendor, isOpen, onClose }: DemoRequestModalPr
             </h3>
             
             <div>
-              <Label htmlFor="bankName">Institution Name</Label>
+              <Label htmlFor="institutionName">Institution Name</Label>
               <Input
-                id="bankName"
+                id="institutionName"
                 required
-                value={formData.bankName}
-                onChange={(e) => handleInputChange('bankName', e.target.value)}
-                placeholder="Your bank or credit union name"
+                value={formData.institutionName}
+                onChange={(e) => handleInputChange('institutionName', e.target.value)}
+                placeholder="Your institution name"
                 className="mt-1"
               />
             </div>
 
-            <div>
+            {/* <div>
               <Label htmlFor="assetsUnderManagement">Assets Under Management</Label>
               <Select onValueChange={(value) => handleInputChange('assetsUnderManagement', value)}>
                 <SelectTrigger className="mt-1">
@@ -182,7 +200,7 @@ export function DemoRequestModal({ vendor, isOpen, onClose }: DemoRequestModalPr
                   <SelectItem value="over-5b">Over $5B</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
 
             <div>
               <Label htmlFor="currentProvider">Current {vendor.category} Provider (if any)</Label>

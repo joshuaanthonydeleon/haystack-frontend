@@ -31,6 +31,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Initialize auth state from localStorage
   useEffect(() => {
+    const unsubscribe = apiService.subscribeToTokenUpdates((tokens) => {
+      setToken(tokens?.accessToken ?? null)
+      setRefreshToken(tokens?.refreshToken ?? null)
+    })
+
     const initializeAuth = async () => {
       try {
         const storedToken = localStorage.getItem('auth_token')
@@ -72,6 +77,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     initializeAuth()
+
+    return () => {
+      unsubscribe()
+    }
   }, [])
 
   const signIn = async (credentials: AuthRequest) => {
@@ -84,10 +93,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(user)
         setToken(access_token)
         setRefreshToken(refresh_token)
-        
+
         // Store in localStorage for persistence
-        localStorage.setItem('auth_token', access_token)
-        localStorage.setItem('auth_refresh_token', refresh_token)
+        apiService.setAuthTokens(access_token, refresh_token)
         localStorage.setItem('auth_user', JSON.stringify(user))
       } else {
         throw new Error(response.error || 'Authentication failed')
@@ -110,10 +118,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(user)
         setToken(access_token)
         setRefreshToken(refresh_token)
-        
+
         // Store authentication data for immediate access
-        localStorage.setItem('auth_token', access_token)
-        localStorage.setItem('auth_refresh_token', refresh_token)
+        apiService.setAuthTokens(access_token, refresh_token)
         localStorage.setItem('auth_user', JSON.stringify(user))
         
         // Show success message
@@ -133,8 +140,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null)
     setToken(null)
     setRefreshToken(null)
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('auth_refresh_token')
+    apiService.clearAuthTokens()
     localStorage.removeItem('auth_user')
   }
 
@@ -186,11 +192,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const { access_token, refresh_token } = response.data
         setToken(access_token)
         setRefreshToken(refresh_token)
-        
+
         // Update localStorage
-        localStorage.setItem('auth_token', access_token)
-        localStorage.setItem('auth_refresh_token', refresh_token)
-        
+        apiService.setAuthTokens(access_token, refresh_token)
+
         return true
       }
     } catch (error) {

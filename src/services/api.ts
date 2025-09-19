@@ -31,7 +31,7 @@ import type {
   Notification,
 } from '../types/api'
 
-import { VendorSize, PricingModel, VerificationStatus, VendorStatus, VendorClaimStatus, VerificationMethod } from '../types/api'
+import { VendorClaimStatus, VerificationMethod } from '../types/api'
 
 // Mock user data for demo requests (keeping old structure for compatibility)
 const mockDemoUser = {
@@ -42,54 +42,21 @@ const mockDemoUser = {
   email: 'john.doe@firstnational.com'
 }
 
-const mockVendors: Vendor[] = [
-  {
-    id: '1',
-    name: 'CoreTech Solutions',
-    slug: 'coretech-solutions',
-    category: 'Core Banking',
-    subcategories: ['Account Management', 'Transaction Processing'],
-    location: 'Austin, TX',
-    size: VendorSize.midMarket,
-    founded: '2015',
-    employees: '150-500',
-    rating: 4.8,
-    reviewCount: 156,
-    compatibility: 95,
-    description: 'Modern core banking platform designed specifically for community banks.',
-    longDescription: 'CoreTech Solutions provides a comprehensive core banking platform...',
-    website: 'https://coretech-solutions.com',
-    phone: '+1 (512) 555-0123',
-    email: 'contact@coretech-solutions.com',
-    logoUrl: '/api/placeholder/120/120',
-    tags: ['Core Banking', 'Real-time Processing', 'API Integration'],
-    features: ['Real-time processing', 'API ecosystem', 'Analytics'],
-    integrations: ['Jack Henry', 'Fiserv', 'Q2'],
-    certifications: ['SOC 2 Type II', 'PCI DSS'],
-    clientSize: ['Community Banks', 'Credit Unions'],
-    pricingModel: PricingModel.subscription,
-    priceRange: '$10K - $50K/month',
-    status: VendorStatus.active,
-    isClaimed: true,
-    claimedBy: 'vendor-user-1',
-    claimedAt: '2024-01-15T00:00:00Z',
-    verificationStatus: VerificationStatus.verified,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-02-01T00:00:00Z',
-    lastActivityAt: '2024-02-15T00:00:00Z',
-    metrics: {
-      profileViews: 1250,
-      demoRequests: 45,
-      savedCount: 89,
-      clickThroughRate: 12.5,
-      conversionRate: 8.2
-    }
-  }
-]
+type RequestOptions = RequestInit & {
+  skipAuth?: boolean
+  skipRefresh?: boolean
+}
+
+type TokenPayload = {
+  accessToken: string
+  refreshToken: string
+}
 
 // API Service Class
 export class ApiService {
-  private baseUrl = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/auth'
+  private baseUrl = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001'
+  private tokenListeners = new Set<(tokens: TokenPayload | null) => void>()
+  private refreshPromise: Promise<ApiResponse<RefreshTokenResponse>> | null = null
 
   private async mockApiCall<T>(data: T, delay = 1000): Promise<ApiResponse<T>> {
     await new Promise(resolve => setTimeout(resolve, delay))
@@ -99,43 +66,71 @@ export class ApiService {
     }
   }
 
-  private async makeRequest<T>(endpoint: string, options: RequestInit = {}, retryCount = 0): Promise<ApiResponse<T>> {
+  subscribeToTokenUpdates(listener: (tokens: TokenPayload | null) => void): () => void {
+    this.tokenListeners.add(listener)
+    return () => this.tokenListeners.delete(listener)
+  }
+
+  setAuthTokens(accessToken: string, refreshToken: string) {
+    localStorage.setItem('auth_token', accessToken)
+    localStorage.setItem('auth_refresh_token', refreshToken)
+    this.tokenListeners.forEach(listener => listener({ accessToken, refreshToken }))
+  }
+
+  clearAuthTokens() {
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('auth_refresh_token')
+    this.tokenListeners.forEach(listener => listener(null))
+  }
+
+  private async makeRequest<T>(endpoint: string, options: RequestOptions = {}, retryCount = 0): Promise<ApiResponse<T>> {
     try {
+      const { skipAuth, skipRefresh, ...fetchOptions } = options
+      const headers = new Headers(fetchOptions.headers || {})
+      const token = localStorage.getItem('auth_token')
+
+      if (!headers.has('Content-Type') && fetchOptions.body) {
+        headers.set('Content-Type', 'application/json')
+      }
+
+      if (!skipAuth && token && !headers.has('Authorization')) {
+        headers.set('Authorization', `Bearer ${token}`)
+      }
+
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-        ...options,
+        ...fetchOptions,
+        headers,
       })
 
       const data = await response.json()
 
       // Handle 401 Unauthorized - try to refresh token
-      if (response.status === 401 && retryCount === 0) {
-        const refreshToken = localStorage.getItem('auth_refresh_token')
-        if (refreshToken) {
+      if (response.status === 401 && retryCount === 0 && !skipRefresh) {
+        const refreshTokenValue = localStorage.getItem('auth_refresh_token')
+        if (refreshTokenValue) {
           try {
-            const refreshResponse = await this.refreshToken({ refreshToken })
+            const refreshResponse = await this.refreshToken({ refreshToken: refreshTokenValue })
             if (refreshResponse.success) {
               // Update the authorization header and retry the request
-              const newOptions = {
-                ...options,
-                headers: {
-                  ...options.headers,
-                  'Authorization': `Bearer ${refreshResponse.data.access_token}`
-                }
-              }
-              return this.makeRequest<T>(endpoint, newOptions, 1)
+              const retryHeaders = new Headers(fetchOptions.headers || {})
+              retryHeaders.set('Authorization', `Bearer ${refreshResponse.data.access_token}`)
+
+              return this.makeRequest<T>(
+                endpoint,
+                {
+                  ...fetchOptions,
+                  headers: retryHeaders,
+                },
+                1
+              )
             }
           } catch (refreshError) {
             console.error('Token refresh failed:', refreshError)
           }
         }
-        
+
         // If refresh fails or no refresh token, clear auth and redirect
-        localStorage.removeItem('auth_token')
-        localStorage.removeItem('auth_refresh_token')
+        this.clearAuthTokens()
         localStorage.removeItem('auth_user')
         window.location.href = '/auth/signin'
       }
@@ -163,49 +158,73 @@ export class ApiService {
 
   // Authentication
   async signIn(request: AuthRequest): Promise<ApiResponse<AuthResponse>> {
-    return this.makeRequest<AuthResponse>('/signin', {
+    return this.makeRequest<AuthResponse>('/auth/signin', {
       method: 'POST',
       body: JSON.stringify(request)
     })
   }
 
   async signUp(request: SignUpRequest): Promise<ApiResponse<SignUpResponse>> {
-    return this.makeRequest<SignUpResponse>('/signup', {
+    return this.makeRequest<SignUpResponse>('/auth/signup', {
       method: 'POST',
       body: JSON.stringify(request)
     })
   }
 
-  async refreshToken(request: RefreshTokenRequest): Promise<ApiResponse<RefreshTokenResponse>> {
-    return this.makeRequest<RefreshTokenResponse>('/refresh', {
-      method: 'POST',
-      body: JSON.stringify(request)
+  async refreshToken(request: RefreshTokenRequest, options: { force?: boolean } = {}): Promise<ApiResponse<RefreshTokenResponse>> {
+    if (!options.force && this.refreshPromise) {
+      return this.refreshPromise
+    }
+
+    const refreshTask = this.makeRequest<RefreshTokenResponse>(
+      '/auth/refresh',
+      {
+        method: 'POST',
+        body: JSON.stringify(request),
+        skipAuth: true,
+        skipRefresh: true,
+      }
+    ).then((response) => {
+      if (response.success) {
+        const { access_token, refresh_token } = response.data
+        this.setAuthTokens(access_token, refresh_token)
+      }
+
+      return response
+    }).finally(() => {
+      if (this.refreshPromise === refreshTask) {
+        this.refreshPromise = null
+      }
     })
+
+    this.refreshPromise = refreshTask
+
+    return refreshTask
   }
 
   async forgotPassword(request: ForgotPasswordRequest): Promise<ApiResponse<AuthMessageResponse>> {
-    return this.makeRequest<AuthMessageResponse>('/forgot-password', {
+    return this.makeRequest<AuthMessageResponse>('/auth/forgot-password', {
       method: 'POST',
       body: JSON.stringify(request)
     })
   }
 
   async resetPassword(request: ResetPasswordRequest): Promise<ApiResponse<AuthMessageResponse>> {
-    return this.makeRequest<AuthMessageResponse>('/reset-password', {
+    return this.makeRequest<AuthMessageResponse>('/auth/reset-password', {
       method: 'POST',
       body: JSON.stringify(request)
     })
   }
 
   async verifyEmail(request: VerifyEmailRequest): Promise<ApiResponse<AuthMessageResponse>> {
-    return this.makeRequest<AuthMessageResponse>('/verify-email', {
+    return this.makeRequest<AuthMessageResponse>('/auth/verify-email', {
       method: 'POST',
       body: JSON.stringify(request)
     })
   }
 
   async resendVerificationEmail(email: string): Promise<ApiResponse<AuthMessageResponse>> {
-    return this.makeRequest<AuthMessageResponse>(`/resend-verification?email=${encodeURIComponent(email)}`, {
+    return this.makeRequest<AuthMessageResponse>(`/auth/resend-verification?email=${encodeURIComponent(email)}`, {
       method: 'POST'
     })
   }
@@ -220,7 +239,7 @@ export class ApiService {
       }
     }
 
-    return this.makeRequest<User>('/profile', {
+    return this.makeRequest<User>('/auth/profile', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -230,62 +249,39 @@ export class ApiService {
 
   // Vendors
   async searchVendors(params: VendorSearchParams): Promise<ApiResponse<VendorSearchResponse>> {
-    const filteredVendors = mockVendors.filter(vendor => {
-      if (params.q) {
-        const query = params.q.toLowerCase()
-        return vendor.name.toLowerCase().includes(query) ||
-          vendor.description.toLowerCase().includes(query) ||
-          vendor.tags.some(tag => tag.toLowerCase().includes(query))
-      }
-      if (params.category && vendor.category !== params.category) return false
-      if (params.size && vendor.size !== params.size) return false
-      return true
-    })
+    console.log('searchVendors', params)
+    const queryParams = new URLSearchParams()
+    if (params.q) queryParams.append('q', params.q)
+    if (params.category) queryParams.append('category', params.category)
+    if (params.size) queryParams.append('size', params.size)
+    queryParams.append('page', (params.page || 1).toString())
+    queryParams.append('limit', (params.limit || 10).toString())
 
-    return this.mockApiCall({
-      vendors: filteredVendors,
-      total: filteredVendors.length,
-      page: params.page || 1,
-      limit: params.limit || 10,
-      hasMore: false
+    console.log('queryParams', queryParams.toString())
+
+    return this.makeRequest<VendorSearchResponse>(`/vendor/search?${queryParams.toString()}`, {
+      method: 'GET'
     })
   }
 
   async getVendor(id: string): Promise<ApiResponse<Vendor>> {
-    const vendor = mockVendors.find(v => v.id === id) || mockVendors[0]
-    return this.mockApiCall(vendor)
+    return this.makeRequest<Vendor>(`/vendor/${id}`, {
+      method: 'GET'
+    })
   }
 
   async createVendor(request: VendorCreateRequest): Promise<ApiResponse<Vendor>> {
-    const newVendor: Vendor = {
-      ...mockVendors[0],
-      ...request,
-      id: Math.random().toString(),
-      slug: request.name.toLowerCase().replace(/\s+/g, '-'),
-      status: VendorStatus.pending,
-      isClaimed: false,
-      verificationStatus: VerificationStatus.pending,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      metrics: {
-        profileViews: 0,
-        demoRequests: 0,
-        savedCount: 0,
-        clickThroughRate: 0,
-        conversionRate: 0
-      }
-    }
-    return this.mockApiCall(newVendor)
+    return this.makeRequest<Vendor>('/vendor', {
+      method: 'POST',
+      body: JSON.stringify(request)
+    })
   }
 
   async updateVendor(id: string, request: VendorUpdateRequest): Promise<ApiResponse<Vendor>> {
-    const vendor = mockVendors.find(v => v.id === id) || mockVendors[0]
-    const updatedVendor = {
-      ...vendor,
-      ...request,
-      updatedAt: new Date().toISOString()
-    }
-    return this.mockApiCall(updatedVendor)
+    return this.makeRequest<Vendor>(`/vendor/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(request)
+    })
   }
 
   // Demo Requests
@@ -332,39 +328,16 @@ export class ApiService {
 
   // Reviews
   async getVendorReviews(vendorId: string): Promise<ApiResponse<Review[]>> {
-    const mockReviews: Review[] = [
-      {
-        id: '1',
-        vendorId,
-        userId: mockDemoUser.id,
-        reviewer: 'Sarah Johnson',
-        title: 'CTO, First National Bank',
-        rating: 5,
-        content: 'Excellent platform with outstanding support.',
-        isVerified: true,
-        isAnonymous: false,
-        date: '2024-01-15',
-        helpfulCount: 12,
-        tags: ['Easy Implementation', 'Great Support']
-      }
-    ]
-    return this.mockApiCall(mockReviews)
+    return this.makeRequest<Review[]>(`/vendor/${vendorId}/ratings`, {
+      method: 'GET'
+    })
   }
 
   async createReview(request: ReviewCreateRequest): Promise<ApiResponse<Review>> {
-    const review: Review = {
-      id: Math.random().toString(),
-      ...request,
-      userId: mockDemoUser.id,
-      reviewer: `${mockDemoUser.firstName} ${mockDemoUser.lastName}`,
-      title: mockDemoUser.title,
-      isVerified: true,
-      isAnonymous: request.isAnonymous || false,
-      date: new Date().toISOString().split('T')[0],
-      helpfulCount: 0,
-      tags: request.tags || []
-    }
-    return this.mockApiCall(review)
+    return this.makeRequest<Review>(`/vendor/${request.vendorId}/ratings`, {
+      method: 'POST',
+      body: JSON.stringify(request)
+    })
   }
 
   // Compliance Documents
@@ -498,7 +471,7 @@ export class ApiService {
     const claim = {
       id: claimId,
       vendorId: '1',
-        userId: mockDemoUser.id,
+      userId: mockDemoUser.id,
       status: approved ? VendorClaimStatus.approved : VendorClaimStatus.rejected,
       firstName: 'John',
       lastName: 'Doe',

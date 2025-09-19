@@ -162,80 +162,86 @@ const VendorSearch = () => {
             </div>
           ) : (
             vendors.map((vendor) => (
-            <div key={vendor.id} className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-start gap-6">
-                {/* Logo */}
-                <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Building2 className="w-10 h-10 text-gray-400" />
-                </div>
-
-                {/* Main Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                        {vendor.name}
-                      </h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span className="inline-flex items-center gap-1">
-                          <Building2 className="w-4 h-4" />
-                          {vendor.category}
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                          <MapPin className="w-4 h-4" />
-                          {vendor.location}
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                          <Users className="w-4 h-4" />
-                          {vendor.size}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="flex items-center gap-1 mb-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="font-semibold">{vendor.rating}</span>
-                        <span className="text-sm text-gray-600">({vendor.reviewCount})</span>
-                      </div>
-                      <div className="text-sm text-green-600 font-medium">
-                        {vendor.compatibility}% Match
-                      </div>
-                    </div>
+              <div key={vendor.id} className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-6">
+                  {/* Logo */}
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Building2 className="w-10 h-10 text-gray-400" />
                   </div>
 
-                  <p className="text-gray-600 mb-4">
-                    {vendor.description}
-                  </p>
+                  {/* Main Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                          {vendor.companyName}
+                        </h3>
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <span className="inline-flex items-center gap-1">
+                            <Building2 className="w-4 h-4" />
+                            {vendor.profile.category}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <MapPin className="w-4 h-4" />
+                            {vendor.profile.location}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Users className="w-4 h-4" />
+                            {vendor.profile.size}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="flex items-center gap-1 mb-1">
+                          {vendor.profile.rating ? (
+                            <>
+                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                              <span className="font-semibold">{vendor.profile.rating}</span>
+                              <span className="text-sm text-gray-600">({vendor.ratings.length})</span>
+                            </>
+                          ) : (
+                            <span className="text-sm text-gray-600">No ratings</span>
+                          )}
+                        </div>
+                        <div className="text-sm text-green-600 font-medium">
+                          {vendor.profile.compatibility}% Match
+                        </div>
+                      </div>
+                    </div>
 
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {vendor.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-blue-50 text-blue-700 text-sm rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                    <p className="text-gray-600 mb-4">
+                      {vendor.profile.summary}
+                    </p>
 
-                  <div className="flex items-center gap-3">
-                    <Link to="/vendor/$vendorId" params={{ vendorId: vendor.id }}>
-                      <Button variant="outline" size="sm" className="flex items-center gap-2">
-                        <ExternalLink className="w-4 h-4" />
-                        View Profile
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {vendor.profile.tags && vendor.profile.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-1 bg-blue-50 text-blue-700 text-sm rounded-full"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <Link to="/vendor/$vendorId" params={{ vendorId: vendor.id }}>
+                        <Button variant="outline" size="sm" className="flex items-center gap-2">
+                          <ExternalLink className="w-4 h-4" />
+                          View Profile
+                        </Button>
+                      </Link>
+                      <Button size="sm" onClick={() => handleDemoRequest(vendor)}>
+                        Request Demo
                       </Button>
-                    </Link>
-                    <Button size="sm" onClick={() => handleDemoRequest(vendor)}>
-                      Request Demo
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Save Vendor
-                    </Button>
+                      <Button variant="outline" size="sm">
+                        Save Vendor
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))
+            ))
           )}
         </div>
 

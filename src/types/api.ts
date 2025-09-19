@@ -20,6 +20,8 @@ export interface User {
   twitterProfile?: string
   instagramProfile?: string
   youtubeProfile?: string
+  institutionName?: string
+  title?: string
 }
 
 export interface AuthRequest {
@@ -108,49 +110,86 @@ export enum VerificationStatus {
   rejected = 'rejected'
 }
 
+export enum VendorCategory {
+  coreLendingDigitalBanking = 'Core, Lending & Digital Banking',
+  coreDigitalBanking = 'Core & Digital Banking',
+  corePaymentsRisk = 'Core, Payments & Risk',
+  coreBanking = 'Core Banking',
+  corePaymentsDigital = 'Core, Payments & Digital',
+  digitalBankingPlatform = 'Digital Banking Platform',
+  payments = 'Payments',
+  lending = 'Lending',
+  riskCompliance = 'Risk & Compliance',
+  analytics = 'Analytics',
+  fintech = 'Fintech',
+  other = 'Other'
+}
+
 // Vendor Types
 export interface Vendor {
   id: string
-  name: string
-  slug: string
-  category: string
-  subcategories: string[]
-  location: string
-  size: VendorSize
-  founded: string
-  employees: string
-  rating: number
-  reviewCount: number
-  compatibility?: number
-  description: string
-  longDescription: string
+  companyName: string
   website: string
-  phone: string
-  email: string
-  logoUrl: string
-  bannerUrl?: string
-  tags: string[]
-  features: string[]
-  integrations: string[]
-  certifications: string[]
-  clientSize: string[]
-  pricingModel: PricingModel
-  priceRange: string
-  status: VendorStatus
-  isClaimed: boolean
-  claimedBy?: string
-  claimedAt?: string
-  verificationStatus: VerificationStatus
+  isActive: boolean
+  profile: VendorProfile
   createdAt: string
   updatedAt: string
-  lastActivityAt: string
-  metrics: {
-    profileViews: number
-    demoRequests: number
-    savedCount: number
-    clickThroughRate: number
-    conversionRate: number
-  }
+  ratings: Rating[]
+  claimedAt: string
+}
+
+export interface VendorProfile {
+  id: number
+  summary?: string
+  detailedDescription?: string
+  category?: VendorCategory
+  subcategories?: string[]
+  location?: string
+  size?: VendorSize
+  founded?: string
+  employees?: string
+  rating?: number
+  compatibility?: number
+  website?: string
+  phone?: string
+  email?: string
+  logoUrl?: string
+  tags?: string[]
+  features?: string[]
+  integrations?: string[]
+  certifications?: string[]
+  clientSize?: string[]
+  pricingModel?: PricingModel
+  priceRange?: string
+  status: VendorStatus
+  verificationStatus: VerificationStatus
+  lastActivityAt?: string
+  targetCustomers?: string[]
+  searchHintsKeywords?: string[]
+  complianceCertifications?: string[]
+  integrationsCoreSupport?: string[]
+  digitalBankingPartners?: string[]
+  notableCustomers?: string[]
+  pricingNotes?: string
+  sourceUrl?: string
+  confidence?: number
+  lastVerified?: string
+  notes?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface Rating {
+  id: string
+  vendorId: string
+  rating: number
+  isVerified: boolean
+  isAnonymous: boolean
+  tags?: string[]
+  reviewer?: string
+  reviewerTitle?: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface VendorCreateRequest {
