@@ -35,6 +35,8 @@ import { Route as DemoStartApiRequestRouteImport } from './routes/demo.start.api
 import { Route as DemoSentryTestingRouteImport } from './routes/demo.sentry.testing'
 import { Route as DemoFormSimpleRouteImport } from './routes/demo.form.simple'
 import { Route as DemoFormAddressRouteImport } from './routes/demo.form.address'
+import { Route as AdminVendorsVendorIdEditRouteImport } from './routes/admin/vendors.$vendorId.edit'
+import { Route as AdminVendorsVendorIdResearchResearchIdRouteImport } from './routes/admin/vendors.$vendorId.research.$researchId'
 import { ServerRoute as ApiDemoTqTodosServerRouteImport } from './routes/api.demo-tq-todos'
 import { ServerRoute as ApiDemoNamesServerRouteImport } from './routes/api.demo-names'
 
@@ -160,6 +162,18 @@ const DemoFormAddressRoute = DemoFormAddressRouteImport.update({
   path: '/demo/form/address',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminVendorsVendorIdEditRoute =
+  AdminVendorsVendorIdEditRouteImport.update({
+    id: '/admin/vendors/$vendorId/edit',
+    path: '/admin/vendors/$vendorId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminVendorsVendorIdResearchResearchIdRoute =
+  AdminVendorsVendorIdResearchResearchIdRouteImport.update({
+    id: '/admin/vendors/$vendorId/research/$researchId',
+    path: '/admin/vendors/$vendorId/research/$researchId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiDemoTqTodosServerRoute = ApiDemoTqTodosServerRouteImport.update({
   id: '/api/demo-tq-todos',
   path: '/api/demo-tq-todos',
@@ -196,6 +210,8 @@ export interface FileRoutesByFullPath {
   '/demo/sentry/testing': typeof DemoSentryTestingRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/admin/vendors/$vendorId/edit': typeof AdminVendorsVendorIdEditRoute
+  '/admin/vendors/$vendorId/research/$researchId': typeof AdminVendorsVendorIdResearchResearchIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -222,6 +238,8 @@ export interface FileRoutesByTo {
   '/demo/sentry/testing': typeof DemoSentryTestingRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/admin/vendors/$vendorId/edit': typeof AdminVendorsVendorIdEditRoute
+  '/admin/vendors/$vendorId/research/$researchId': typeof AdminVendorsVendorIdResearchResearchIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -249,6 +267,8 @@ export interface FileRoutesById {
   '/demo/sentry/testing': typeof DemoSentryTestingRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/admin/vendors/$vendorId/edit': typeof AdminVendorsVendorIdEditRoute
+  '/admin/vendors/$vendorId/research/$researchId': typeof AdminVendorsVendorIdResearchResearchIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -277,6 +297,8 @@ export interface FileRouteTypes {
     | '/demo/sentry/testing'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/admin/vendors/$vendorId/edit'
+    | '/admin/vendors/$vendorId/research/$researchId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -303,6 +325,8 @@ export interface FileRouteTypes {
     | '/demo/sentry/testing'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/admin/vendors/$vendorId/edit'
+    | '/admin/vendors/$vendorId/research/$researchId'
   id:
     | '__root__'
     | '/'
@@ -329,6 +353,8 @@ export interface FileRouteTypes {
     | '/demo/sentry/testing'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/admin/vendors/$vendorId/edit'
+    | '/admin/vendors/$vendorId/research/$researchId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -356,6 +382,8 @@ export interface RootRouteChildren {
   DemoSentryTestingRoute: typeof DemoSentryTestingRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
+  AdminVendorsVendorIdEditRoute: typeof AdminVendorsVendorIdEditRoute
+  AdminVendorsVendorIdResearchResearchIdRoute: typeof AdminVendorsVendorIdResearchResearchIdRoute
 }
 export interface FileServerRoutesByFullPath {
   '/api/demo-names': typeof ApiDemoNamesServerRoute
@@ -553,6 +581,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoFormAddressRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/vendors/$vendorId/edit': {
+      id: '/admin/vendors/$vendorId/edit'
+      path: '/admin/vendors/$vendorId/edit'
+      fullPath: '/admin/vendors/$vendorId/edit'
+      preLoaderRoute: typeof AdminVendorsVendorIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/vendors/$vendorId/research/$researchId': {
+      id: '/admin/vendors/$vendorId/research/$researchId'
+      path: '/admin/vendors/$vendorId/research/$researchId'
+      fullPath: '/admin/vendors/$vendorId/research/$researchId'
+      preLoaderRoute: typeof AdminVendorsVendorIdResearchResearchIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 declare module '@tanstack/react-start/server' {
@@ -599,6 +641,9 @@ const rootRouteChildren: RootRouteChildren = {
   DemoSentryTestingRoute: DemoSentryTestingRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
+  AdminVendorsVendorIdEditRoute: AdminVendorsVendorIdEditRoute,
+  AdminVendorsVendorIdResearchResearchIdRoute:
+    AdminVendorsVendorIdResearchResearchIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

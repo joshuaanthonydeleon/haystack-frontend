@@ -224,6 +224,33 @@ export interface VendorSearchResponse {
   hasMore: boolean
 }
 
+export enum VendorResearchStatus {
+  pending = 'pending',
+  in_progress = 'in_progress',
+  completed = 'completed',
+  failed = 'failed',
+}
+
+export interface VendorResearchRecord {
+  id: number
+  vendor: Vendor
+  status: VendorResearchStatus
+  websiteUrl?: string
+  websiteSnapshot?: Record<string, unknown>
+  extractedProfile?: Record<string, unknown>
+  discoveredLogoUrl?: string
+  deepResearchInsights?: Record<string, unknown>
+  rawResearchArtifacts?: Record<string, unknown>
+  errorMessage?: string
+  llmModel?: string
+  metadata?: Record<string, unknown>
+  requestedAt: string
+  startedAt?: string
+  completedAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
 // Review Types
 export interface Review {
   id: string

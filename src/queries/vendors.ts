@@ -11,6 +11,8 @@ export const vendorKeys = {
   detail: (id: string) => [...vendorKeys.details(), id] as const,
   reviews: (id: string) => [...vendorKeys.detail(id), 'reviews'] as const,
   documents: (id: string) => [...vendorKeys.detail(id), 'documents'] as const,
+  research: (id: string) => [...vendorKeys.detail(id), 'research'] as const,
+  researchDetail: (id: string, researchId: string) => [...vendorKeys.research(id), researchId] as const,
 }
 
 // Queries
@@ -49,6 +51,15 @@ export const useVendorDocuments = (vendorId: string) => {
   })
 }
 
+export const useVendorResearchHistory = (vendorId: string) => {
+  return useQuery({
+    queryKey: vendorKeys.research(vendorId),
+    queryFn: () => apiService.getVendorResearchHistory(vendorId),
+    enabled: !!vendorId,
+    refetchInterval: 30 * 1000, // poll for updates while viewing
+  })
+}
+
 // Mutations
 export const useCreateVendor = () => {
   const queryClient = useQueryClient()
@@ -76,5 +87,27 @@ export const useUpdateVendor = () => {
         queryClient.invalidateQueries({ queryKey: vendorKeys.lists() })
       }
     },
+  })
+}
+
+export const useStartVendorResearch = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (vendorId: string) => apiService.startVendorResearch(vendorId),
+    onSuccess: (response, vendorId) => {
+      if (response.success) {
+        queryClient.invalidateQueries({ queryKey: vendorKeys.research(vendorId) })
+      }
+    },
+  })
+}
+
+export const useVendorResearchDetail = (vendorId: string, researchId?: string | number) => {
+  return useQuery({
+    queryKey: researchId ? vendorKeys.researchDetail(vendorId, String(researchId)) : ['vendors', 'research', 'detail', vendorId],
+    queryFn: () => apiService.getVendorResearchById(vendorId, Number(researchId)),
+    enabled: !!vendorId && !!researchId,
+    refetchInterval: 15 * 1000,
   })
 }

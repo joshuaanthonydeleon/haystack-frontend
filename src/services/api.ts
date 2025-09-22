@@ -29,6 +29,7 @@ import type {
   ApiResponse,
   DashboardAnalytics,
   Notification,
+  VendorResearchRecord,
 } from '../types/api'
 
 import { VendorClaimStatus, VerificationMethod } from '../types/api'
@@ -281,6 +282,24 @@ export class ApiService {
     return this.makeRequest<Vendor>(`/vendor/${id}`, {
       method: 'PUT',
       body: JSON.stringify(request)
+    })
+  }
+
+  async startVendorResearch(id: string): Promise<ApiResponse<VendorResearchRecord>> {
+    return this.makeRequest<VendorResearchRecord>(`/vendor/${id}/research`, {
+      method: 'POST'
+    })
+  }
+
+  async getVendorResearchHistory(id: string): Promise<ApiResponse<VendorResearchRecord[]>> {
+    return this.makeRequest<VendorResearchRecord[]>(`/vendor/${id}/research`, {
+      method: 'GET'
+    })
+  }
+
+  async getVendorResearchById(vendorId: string, researchId: number): Promise<ApiResponse<VendorResearchRecord>> {
+    return this.makeRequest<VendorResearchRecord>(`/vendor/${vendorId}/research/${researchId}`, {
+      method: 'GET'
     })
   }
 
