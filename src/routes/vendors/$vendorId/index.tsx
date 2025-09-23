@@ -13,9 +13,9 @@ import {
   Globe,
   Loader2
 } from 'lucide-react'
-import { Button } from '../components/ui/button'
-import { DemoRequestModal } from '../components/DemoRequestModal'
-import { useVendor } from '../queries/vendors'
+import { Button } from '@/components/ui/button'
+import { DemoRequestModal } from '@/components/DemoRequestModal'
+import { useVendor } from '@/queries/vendors'
 
 const VendorProfile = () => {
   const { vendorId } = Route.useParams()
@@ -361,6 +361,6 @@ const VendorProfile = () => {
   )
 }
 
-export const Route = createFileRoute('/vendor/$vendorId')({
+export const Route = createFileRoute('/vendors/$vendorId/')({
   component: VendorProfile,
 })

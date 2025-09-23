@@ -1,9 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Loader2 } from 'lucide-react'
+import { Link, createFileRoute } from '@tanstack/react-router'
+import { Loader2, Sparkles } from 'lucide-react'
 
-import { AuthGuard } from '../../components/guards/AuthGuard'
-import { Button } from '../../components/ui/button'
-import { useVendorResearchDetail } from '../../queries/vendors'
+import { AuthGuard } from '@/components/guards/AuthGuard'
+import { Button } from '@/components/ui/button'
+import { useVendorResearchDetail } from '@/queries/vendors'
 
 const VendorResearchDetail = () => {
   const { vendorId, researchId } = Route.useParams()
@@ -34,6 +34,8 @@ const VendorResearchDetail = () => {
 
   const record = data.data
 
+  const insightsPath = `/admin/vendors/${vendorId}/research/${researchId}/details`
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -42,7 +44,22 @@ const VendorResearchDetail = () => {
             <h1 className="text-3xl font-bold text-gray-900">AI Research Detail</h1>
             <p className="text-sm text-gray-600">Vendor #{vendorId} · Research #{researchId}</p>
           </div>
-          <Button variant="outline" onClick={() => refetch()}>Refresh</Button>
+          <div className="flex items-center gap-2">
+            <Button asChild>
+              <Link to={insightsPath}>
+                <Sparkles className="w-4 h-4 mr-1" />
+                Insights view
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/admin/vendors/$vendorId/research" params={{ vendorId }}>
+                Research overview
+              </Link>
+            </Button>
+            <Button variant="outline" onClick={() => refetch()}>
+              Refresh
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -117,11 +134,10 @@ const VendorResearchDetail = () => {
   )
 }
 
-export const Route = createFileRoute('/admin/vendors/$vendorId/research/$researchId')({
+export const Route = createFileRoute('/admin/vendors/$vendorId/research/$researchId/')({
   component: () => (
     <AuthGuard requiredRole="admin">
       <VendorResearchDetail />
     </AuthGuard>
   ),
 })
-

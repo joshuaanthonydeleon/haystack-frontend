@@ -1,29 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { 
-  BarChart3, 
-  Users, 
-  Eye, 
-  Calendar, 
-  TrendingUp, 
-  Settings, 
-  FileText, 
+import {
+  BarChart3,
+  Users,
+  Eye,
+  Calendar,
+  TrendingUp,
+  Settings,
   Star,
-  Download,
-  MessageSquare
 } from 'lucide-react'
-import { Button } from '../../components/ui/button'
-import { AuthGuard } from '../../components/guards/AuthGuard'
-import type { DashboardAnalytics, DemoRequest, Review, VendorPerformanceMetrics } from '../../types/api'
-import { apiService } from '../../services/api'
-
-export const Route = createFileRoute('/vendor/dashboard')({
-  component: () => (
-    <AuthGuard requiredRole="vendor">
-      <VendorDashboard />
-    </AuthGuard>
-  ),
-})
+import { Button } from '@/components/ui/button'
+import { AuthGuard } from '@/components/guards/AuthGuard'
+import type { DashboardAnalytics, DemoRequest, Review } from '@/types/api'
+import { apiService } from '@/services/api'
 
 const VendorDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview')
@@ -142,11 +131,10 @@ const VendorDashboard = () => {
                   <p className="text-sm text-gray-600">{demo.bankName}</p>
                   <p className="text-xs text-gray-500">{new Date(demo.createdAt).toLocaleDateString()}</p>
                 </div>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  demo.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${demo.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                   demo.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
-                  'bg-green-100 text-green-800'
-                }`}>
+                    'bg-green-100 text-green-800'
+                  }`}>
                   {demo.status}
                 </span>
               </div>
@@ -165,9 +153,9 @@ const VendorDashboard = () => {
                 <div className="flex items-center gap-2 mb-1">
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className={`w-3 h-3 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                      <Star
+                        key={i}
+                        className={`w-3 h-3 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
                       />
                     ))}
                   </div>
@@ -210,7 +198,7 @@ const VendorDashboard = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
@@ -255,11 +243,10 @@ const VendorDashboard = () => {
                     <span className="text-sm text-gray-900">{demo.timeline}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      demo.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${demo.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                       demo.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
+                        'bg-green-100 text-green-800'
+                      }`}>
                       {demo.status}
                     </span>
                   </td>
@@ -300,9 +287,9 @@ const VendorDashboard = () => {
                 <div className="flex items-center gap-2 mb-1">
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
                       />
                     ))}
                   </div>
@@ -318,9 +305,9 @@ const VendorDashboard = () => {
                 <p className="text-sm text-gray-600">{review.helpfulCount} helpful</p>
               </div>
             </div>
-            
+
             <p className="text-gray-700 mb-3">{review.content}</p>
-            
+
             {review.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {review.tags.map((tag) => (
@@ -339,7 +326,7 @@ const VendorDashboard = () => {
   const renderAnalyticsTab = () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Analytics & Performance</h2>
-      
+
       {/* Performance Charts Placeholder */}
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow-sm border p-6">
@@ -380,30 +367,30 @@ const VendorDashboard = () => {
   const renderProfileTab = () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Profile Settings</h2>
-      
+
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <h3 className="text-lg font-semibold mb-4">Company Information</h3>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               defaultValue="CoreTech Solutions"
               className="w-full border rounded-md px-3 py-2"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
-            <input 
-              type="url" 
+            <input
+              type="url"
               defaultValue="https://coretech-solutions.com"
               className="w-full border rounded-md px-3 py-2"
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               defaultValue="Austin, TX"
               className="w-full border rounded-md px-3 py-2"
             />
@@ -418,10 +405,10 @@ const VendorDashboard = () => {
             </select>
           </div>
         </div>
-        
+
         <div className="mt-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-          <textarea 
+          <textarea
             rows={4}
             defaultValue="Modern core banking platform designed specifically for community banks and credit unions."
             className="w-full border rounded-md px-3 py-2"
@@ -470,11 +457,10 @@ const VendorDashboard = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
-                      activeTab === tab.id
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      }`}
                   >
                     <Icon className="w-4 h-4" />
                     {tab.label}
@@ -493,3 +479,11 @@ const VendorDashboard = () => {
     </div>
   )
 }
+
+export const Route = createFileRoute('/vendors/$vendorId/dashboard')({
+  component: () => (
+    <AuthGuard requiredRole="vendor">
+      <VendorDashboard />
+    </AuthGuard>
+  ),
+})

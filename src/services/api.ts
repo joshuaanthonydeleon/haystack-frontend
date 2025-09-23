@@ -32,16 +32,6 @@ import type {
   VendorResearchRecord,
 } from '../types/api'
 
-import { VendorClaimStatus, VerificationMethod } from '../types/api'
-
-// Mock user data for demo requests (keeping old structure for compatibility)
-const mockDemoUser = {
-  id: '1',
-  firstName: 'John',
-  lastName: 'Doe',
-  title: 'CTO',
-  email: 'john.doe@firstnational.com'
-}
 
 type RequestOptions = RequestInit & {
   skipAuth?: boolean
@@ -58,14 +48,6 @@ export class ApiService {
   private baseUrl = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001'
   private tokenListeners = new Set<(tokens: TokenPayload | null) => void>()
   private refreshPromise: Promise<ApiResponse<RefreshTokenResponse>> | null = null
-
-  private async mockApiCall<T>(data: T, delay = 1000): Promise<ApiResponse<T>> {
-    await new Promise(resolve => setTimeout(resolve, delay))
-    return {
-      success: true,
-      data
-    }
-  }
 
   subscribeToTokenUpdates(listener: (tokens: TokenPayload | null) => void): () => void {
     this.tokenListeners.add(listener)
@@ -305,44 +287,26 @@ export class ApiService {
 
   // Demo Requests
   async createDemoRequest(request: DemoRequestCreateRequest): Promise<ApiResponse<DemoRequest>> {
-    const demoRequest: DemoRequest = {
-      id: Math.random().toString(),
+    const vendorId = typeof request.vendorId === 'string'
+      ? Number.parseInt(request.vendorId, 10)
+      : request.vendorId
+
+    const payload = {
       ...request,
-      userId: mockDemoUser.id,
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      vendorId
     }
-    return this.mockApiCall(demoRequest)
+
+    return this.makeRequest<DemoRequest>('/demo-requests', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
   }
 
   async getDemoRequests(vendorId?: string): Promise<ApiResponse<DemoRequest[]>> {
-    const mockDemoRequests: DemoRequest[] = [
-      {
-        id: '1',
-        vendorId: '1',
-        userId: mockDemoUser.id,
-        status: 'pending',
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'jane.smith@communitybank.com',
-        phone: '+1 (555) 123-4567',
-        bankName: 'Community First Bank',
-        title: 'VP Technology',
-        assetsUnderManagement: '500m-1b',
-        timeline: 'short-term',
-        preferredTime: 'morning',
-        message: 'Looking to upgrade our core banking system.',
-        createdAt: '2024-02-01T00:00:00Z',
-        updatedAt: '2024-02-01T00:00:00Z'
-      }
-    ]
-
-    const filtered = vendorId
-      ? mockDemoRequests.filter(req => req.vendorId === vendorId)
-      : mockDemoRequests
-
-    return this.mockApiCall(filtered)
+    const query = vendorId ? `?vendorId=${encodeURIComponent(vendorId)}` : ''
+    return this.makeRequest<DemoRequest[]>(`/demo-requests${query}`, {
+      method: 'GET'
+    })
   }
 
   // Reviews
@@ -361,192 +325,67 @@ export class ApiService {
 
   // Compliance Documents
   async getVendorDocuments(vendorId: string): Promise<ApiResponse<ComplianceDocument[]>> {
-    const mockDocuments: ComplianceDocument[] = [
-      {
-        id: '1',
-        vendorId,
-        title: 'SOC 2 Type II Report',
-        description: 'Security, Availability, and Confidentiality audit report',
-        type: 'security-audit',
-        confidentiality: 'restricted',
-        status: 'current',
-        lastUpdated: '2024-01-15',
-        size: '2.3 MB',
-        fileUrl: '/documents/soc2-report.pdf',
-        requiredApproval: true,
-        downloadCount: 45,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-15T00:00:00Z'
-      }
-    ]
-    return this.mockApiCall(mockDocuments)
+    return this.makeRequest<ComplianceDocument[]>(`/vendor/${vendorId}/documents`, {
+      method: 'GET'
+    })
   }
 
   async requestDocumentAccess(request: DocumentAccessRequestCreate): Promise<ApiResponse<DocumentAccessRequest>> {
-    const accessRequest: DocumentAccessRequest = {
-      id: Math.random().toString(),
-      ...request,
-      userId: mockDemoUser.id,
-      status: 'pending',
-      requestedAt: new Date().toISOString()
-    }
-    return this.mockApiCall(accessRequest)
+    return this.makeRequest<DocumentAccessRequest>(`/documents/${request.documentId}/access-requests`, {
+      method: 'POST',
+      body: JSON.stringify({ justification: request.justification })
+    })
   }
 
   // Vendor Claims
   async claimVendor(request: VendorClaimRequest): Promise<ApiResponse<VendorClaim>> {
-    const claim: VendorClaim = {
-      id: Math.random().toString(),
-      ...request,
-      userId: mockDemoUser.id,
-      status: VendorClaimStatus.pending,
-      verificationMethod: request.verificationMethod,
-      submittedAt: new Date().toISOString()
-    }
-    return this.mockApiCall(claim)
+    const { vendorId, ...payload } = request
+    return this.makeRequest<VendorClaim>(`/vendor/${vendorId}/claims`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
   }
 
   async getVendorClaims(): Promise<ApiResponse<VendorClaim[]>> {
-    const mockClaims: VendorClaim[] = [
-      {
-        id: '1',
-        vendorId: '1',
-        userId: mockDemoUser.id,
-        status: VendorClaimStatus.approved,
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john@coretech-solutions.com',
-        phone: '+1 (512) 555-0123',
-        title: 'CEO',
-        companyEmail: '@coretech-solutions.com',
-        verificationMethod: VerificationMethod.email,
-        submittedAt: '2024-01-10T00:00:00Z',
-        reviewedAt: '2024-01-12T00:00:00Z',
-        reviewedBy: 'admin-1'
-      }
-    ]
-    return this.mockApiCall(mockClaims)
+    return this.makeRequest<VendorClaim[]>(`/vendor/claims`, {
+      method: 'GET'
+    })
   }
 
   // Admin APIs
   async getAdminMetrics(): Promise<ApiResponse<AdminMetrics>> {
-    const metrics: AdminMetrics = {
-      totalVendors: 1247,
-      activeVendors: 1089,
-      pendingVerifications: 23,
-      totalBanks: 456,
-      totalDemoRequests: 2341,
-      totalReviews: 567,
-      monthlyGrowth: {
-        vendors: 12.5,
-        banks: 8.3,
-        demoRequests: 24.7
-      },
-      topCategories: [
-        { category: 'Core Banking', count: 234, growth: 15.2 },
-        { category: 'Digital Banking', count: 189, growth: 22.1 },
-        { category: 'Compliance', count: 156, growth: 8.7 }
-      ],
-      recentActivity: [
-        {
-          id: '1',
-          type: 'vendor_signup',
-          description: 'New vendor "PaymentTech Pro" signed up',
-          timestamp: '2024-02-15T10:30:00Z'
-        },
-        {
-          id: '2',
-          type: 'demo_request',
-          description: 'Demo requested for CoreTech Solutions',
-          timestamp: '2024-02-15T09:15:00Z'
-        }
-      ]
-    }
-    return this.mockApiCall(metrics)
+    return this.makeRequest<AdminMetrics>('/admin/metrics', {
+      method: 'GET'
+    })
   }
 
   async getVendorPerformanceMetrics(): Promise<ApiResponse<VendorPerformanceMetrics[]>> {
-    const metrics: VendorPerformanceMetrics[] = [
-      {
-        vendorId: '1',
-        vendorName: 'CoreTech Solutions',
-        profileViews: 1250,
-        demoRequests: 45,
-        conversionRate: 8.2,
-        averageRating: 4.8,
-        reviewCount: 156,
-        documentsDownloaded: 89,
-        lastActivityAt: '2024-02-15T00:00:00Z',
-        monthlyTrend: [
-          { month: '2024-01', views: 980, demos: 32, conversions: 3 },
-          { month: '2024-02', views: 1250, demos: 45, conversions: 4 }
-        ]
-      }
-    ]
-    return this.mockApiCall(metrics)
+    return this.makeRequest<VendorPerformanceMetrics[]>('/admin/vendor-performance', {
+      method: 'GET'
+    })
   }
 
   async approveVendorClaim(claimId: string, approved: boolean, reason?: string): Promise<ApiResponse<VendorClaim>> {
-    const claim = {
-      id: claimId,
-      vendorId: '1',
-      userId: mockDemoUser.id,
-      status: approved ? VendorClaimStatus.approved : VendorClaimStatus.rejected,
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@vendor.com',
-      phone: '+1 (555) 123-4567',
-      title: 'CEO',
-      companyEmail: '@vendor.com',
-      verificationMethod: VerificationMethod.email,
-      submittedAt: '2024-01-10T00:00:00Z',
-      reviewedAt: new Date().toISOString(),
-      reviewedBy: mockDemoUser.id,
-      rejectionReason: reason
-    }
-    return this.mockApiCall(claim)
+    return this.makeRequest<VendorClaim>(`/vendor/claims/${claimId}/decision`, {
+      method: 'POST',
+      body: JSON.stringify({
+        approve: approved,
+        rejectionReason: reason
+      })
+    })
   }
 
   // Vendor Dashboard APIs
   async getVendorDashboard(): Promise<ApiResponse<DashboardAnalytics>> {
-    const analytics: DashboardAnalytics = {
-      overview: {
-        totalLeads: 145,
-        conversionRate: 12.4,
-        avgDemoRequestTime: 2.3,
-        topPerformingCategory: 'Core Banking'
-      },
-      leadGeneration: [
-        { date: '2024-02-01', leads: 12, demos: 8, conversions: 1 },
-        { date: '2024-02-02', leads: 15, demos: 10, conversions: 2 },
-        { date: '2024-02-03', leads: 18, demos: 12, conversions: 1 }
-      ],
-      categoryPerformance: [
-        { category: 'Core Banking', vendors: 45, leads: 234, avgRating: 4.6 },
-        { category: 'Digital Banking', vendors: 38, leads: 189, avgRating: 4.4 }
-      ],
-      geographicDistribution: [
-        { state: 'TX', vendors: 23, banks: 45, activity: 234 },
-        { state: 'CA', vendors: 34, banks: 67, activity: 456 }
-      ]
-    }
-    return this.mockApiCall(analytics)
+    return this.makeRequest<DashboardAnalytics>('/vendor/dashboard', {
+      method: 'GET'
+    })
   }
 
   async getNotifications(): Promise<ApiResponse<Notification[]>> {
-    const notifications: Notification[] = [
-      {
-        id: '1',
-        userId: mockDemoUser.id,
-        type: 'demo_request',
-        title: 'New Demo Request',
-        message: 'Community Bank requested a demo for your Core Banking solution',
-        isRead: false,
-        actionUrl: '/vendor/dashboard/demos/1',
-        createdAt: '2024-02-15T10:30:00Z'
-      }
-    ]
-    return this.mockApiCall(notifications)
+    return this.makeRequest<Notification[]>('/notifications', {
+      method: 'GET'
+    })
   }
 }
 

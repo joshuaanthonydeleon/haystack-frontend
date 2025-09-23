@@ -8,50 +8,29 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createServerRootRoute } from '@tanstack/react-start/server'
-
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VendorsRouteImport } from './routes/vendors'
-import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ClaimRouteImport } from './routes/claim'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as VendorVerifyRouteImport } from './routes/vendor/verify'
-import { Route as VendorDashboardRouteImport } from './routes/vendor/dashboard'
-import { Route as VendorVendorIdRouteImport } from './routes/vendor.$vendorId'
-import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
-import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
-import { Route as DemoTableRouteImport } from './routes/demo.table'
+import { Route as ProfileIndexRouteImport } from './routes/profile/index'
+import { Route as VendorsVerifyRouteImport } from './routes/vendors/verify'
 import { Route as ComplianceVendorIdRouteImport } from './routes/compliance.$vendorId'
-import { Route as AuthVerifyEmailRouteImport } from './routes/auth.verify-email'
-import { Route as AuthSignupRouteImport } from './routes/auth.signup'
-import { Route as AuthSigninRouteImport } from './routes/auth.signin'
-import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
-import { Route as AuthForgotPasswordRouteImport } from './routes/auth.forgot-password'
+import { Route as AuthVerifyEmailRouteImport } from './routes/auth/verify-email'
+import { Route as AuthSignupRouteImport } from './routes/auth/signup'
+import { Route as AuthSigninRouteImport } from './routes/auth/signin'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
-import { Route as DemoStartServerFuncsRouteImport } from './routes/demo.start.server-funcs'
-import { Route as DemoStartApiRequestRouteImport } from './routes/demo.start.api-request'
-import { Route as DemoSentryTestingRouteImport } from './routes/demo.sentry.testing'
-import { Route as DemoFormSimpleRouteImport } from './routes/demo.form.simple'
-import { Route as DemoFormAddressRouteImport } from './routes/demo.form.address'
-import { Route as AdminVendorsVendorIdEditRouteImport } from './routes/admin/vendors.$vendorId.edit'
-import { Route as AdminVendorsVendorIdResearchResearchIdRouteImport } from './routes/admin/vendors.$vendorId.research.$researchId'
-import { ServerRoute as ApiDemoTqTodosServerRouteImport } from './routes/api.demo-tq-todos'
-import { ServerRoute as ApiDemoNamesServerRouteImport } from './routes/api.demo-names'
+import { Route as VendorsVendorIdIndexRouteImport } from './routes/vendors/$vendorId/index'
+import { Route as ProductsProductIdIndexRouteImport } from './routes/products/$productId/index'
+import { Route as AdminVendorsIndexRouteImport } from './routes/admin/vendors/index'
+import { Route as VendorsVendorIdDashboardRouteImport } from './routes/vendors/$vendorId/dashboard'
+import { Route as AdminVendorsVendorIdEditRouteImport } from './routes/admin/vendors/$vendorId/edit'
+import { Route as AdminVendorsVendorIdResearchIndexRouteImport } from './routes/admin/vendors/$vendorId/research/index'
+import { Route as AdminVendorsVendorIdResearchResearchIdIndexRouteImport } from './routes/admin/vendors/$vendorId/research/$researchId/index'
+import { Route as AdminVendorsVendorIdResearchResearchIdDetailsRouteImport } from './routes/admin/vendors/$vendorId/research/$researchId/details'
 
-const rootServerRouteImport = createServerRootRoute()
-
-const VendorsRoute = VendorsRouteImport.update({
-  id: '/vendors',
-  path: '/vendors',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -72,34 +51,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VendorVerifyRoute = VendorVerifyRouteImport.update({
-  id: '/vendor/verify',
-  path: '/vendor/verify',
+const ProfileIndexRoute = ProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VendorDashboardRoute = VendorDashboardRouteImport.update({
-  id: '/vendor/dashboard',
-  path: '/vendor/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const VendorVendorIdRoute = VendorVendorIdRouteImport.update({
-  id: '/vendor/$vendorId',
-  path: '/vendor/$vendorId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProductProductIdRoute = ProductProductIdRouteImport.update({
-  id: '/product/$productId',
-  path: '/product/$productId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoTableRoute = DemoTableRouteImport.update({
-  id: '/demo/table',
-  path: '/demo/table',
+const VendorsVerifyRoute = VendorsVerifyRouteImport.update({
+  id: '/vendors/verify',
+  path: '/vendors/verify',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComplianceVendorIdRoute = ComplianceVendorIdRouteImport.update({
@@ -137,61 +96,57 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/admin/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
-  id: '/demo/start/server-funcs',
-  path: '/demo/start/server-funcs',
+const VendorsVendorIdIndexRoute = VendorsVendorIdIndexRouteImport.update({
+  id: '/vendors/$vendorId/',
+  path: '/vendors/$vendorId/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
-  id: '/demo/start/api-request',
-  path: '/demo/start/api-request',
+const ProductsProductIdIndexRoute = ProductsProductIdIndexRouteImport.update({
+  id: '/products/$productId/',
+  path: '/products/$productId/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoSentryTestingRoute = DemoSentryTestingRouteImport.update({
-  id: '/demo/sentry/testing',
-  path: '/demo/sentry/testing',
+const AdminVendorsIndexRoute = AdminVendorsIndexRouteImport.update({
+  id: '/admin/vendors/',
+  path: '/admin/vendors/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
-  id: '/demo/form/simple',
-  path: '/demo/form/simple',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoFormAddressRoute = DemoFormAddressRouteImport.update({
-  id: '/demo/form/address',
-  path: '/demo/form/address',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const VendorsVendorIdDashboardRoute =
+  VendorsVendorIdDashboardRouteImport.update({
+    id: '/vendors/$vendorId/dashboard',
+    path: '/vendors/$vendorId/dashboard',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminVendorsVendorIdEditRoute =
   AdminVendorsVendorIdEditRouteImport.update({
     id: '/admin/vendors/$vendorId/edit',
     path: '/admin/vendors/$vendorId/edit',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AdminVendorsVendorIdResearchResearchIdRoute =
-  AdminVendorsVendorIdResearchResearchIdRouteImport.update({
-    id: '/admin/vendors/$vendorId/research/$researchId',
-    path: '/admin/vendors/$vendorId/research/$researchId',
+const AdminVendorsVendorIdResearchIndexRoute =
+  AdminVendorsVendorIdResearchIndexRouteImport.update({
+    id: '/admin/vendors/$vendorId/research/',
+    path: '/admin/vendors/$vendorId/research/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiDemoTqTodosServerRoute = ApiDemoTqTodosServerRouteImport.update({
-  id: '/api/demo-tq-todos',
-  path: '/api/demo-tq-todos',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const ApiDemoNamesServerRoute = ApiDemoNamesServerRouteImport.update({
-  id: '/api/demo-names',
-  path: '/api/demo-names',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
+const AdminVendorsVendorIdResearchResearchIdIndexRoute =
+  AdminVendorsVendorIdResearchResearchIdIndexRouteImport.update({
+    id: '/admin/vendors/$vendorId/research/$researchId/',
+    path: '/admin/vendors/$vendorId/research/$researchId/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AdminVendorsVendorIdResearchResearchIdDetailsRoute =
+  AdminVendorsVendorIdResearchResearchIdDetailsRouteImport.update({
+    id: '/admin/vendors/$vendorId/research/$researchId/details',
+    path: '/admin/vendors/$vendorId/research/$researchId/details',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/claim': typeof ClaimRoute
   '/dashboard': typeof DashboardRoute
-  '/profile': typeof ProfileRoute
-  '/vendors': typeof VendorsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -199,27 +154,22 @@ export interface FileRoutesByFullPath {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/compliance/$vendorId': typeof ComplianceVendorIdRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/product/$productId': typeof ProductProductIdRoute
-  '/vendor/$vendorId': typeof VendorVendorIdRoute
-  '/vendor/dashboard': typeof VendorDashboardRoute
-  '/vendor/verify': typeof VendorVerifyRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
-  '/demo/sentry/testing': typeof DemoSentryTestingRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/vendors/verify': typeof VendorsVerifyRoute
+  '/profile': typeof ProfileIndexRoute
+  '/vendors/$vendorId/dashboard': typeof VendorsVendorIdDashboardRoute
+  '/admin/vendors': typeof AdminVendorsIndexRoute
+  '/products/$productId': typeof ProductsProductIdIndexRoute
+  '/vendors/$vendorId': typeof VendorsVendorIdIndexRoute
   '/admin/vendors/$vendorId/edit': typeof AdminVendorsVendorIdEditRoute
-  '/admin/vendors/$vendorId/research/$researchId': typeof AdminVendorsVendorIdResearchResearchIdRoute
+  '/admin/vendors/$vendorId/research': typeof AdminVendorsVendorIdResearchIndexRoute
+  '/admin/vendors/$vendorId/research/$researchId/details': typeof AdminVendorsVendorIdResearchResearchIdDetailsRoute
+  '/admin/vendors/$vendorId/research/$researchId': typeof AdminVendorsVendorIdResearchResearchIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/claim': typeof ClaimRoute
   '/dashboard': typeof DashboardRoute
-  '/profile': typeof ProfileRoute
-  '/vendors': typeof VendorsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -227,19 +177,16 @@ export interface FileRoutesByTo {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/compliance/$vendorId': typeof ComplianceVendorIdRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/product/$productId': typeof ProductProductIdRoute
-  '/vendor/$vendorId': typeof VendorVendorIdRoute
-  '/vendor/dashboard': typeof VendorDashboardRoute
-  '/vendor/verify': typeof VendorVerifyRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
-  '/demo/sentry/testing': typeof DemoSentryTestingRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/vendors/verify': typeof VendorsVerifyRoute
+  '/profile': typeof ProfileIndexRoute
+  '/vendors/$vendorId/dashboard': typeof VendorsVendorIdDashboardRoute
+  '/admin/vendors': typeof AdminVendorsIndexRoute
+  '/products/$productId': typeof ProductsProductIdIndexRoute
+  '/vendors/$vendorId': typeof VendorsVendorIdIndexRoute
   '/admin/vendors/$vendorId/edit': typeof AdminVendorsVendorIdEditRoute
-  '/admin/vendors/$vendorId/research/$researchId': typeof AdminVendorsVendorIdResearchResearchIdRoute
+  '/admin/vendors/$vendorId/research': typeof AdminVendorsVendorIdResearchIndexRoute
+  '/admin/vendors/$vendorId/research/$researchId/details': typeof AdminVendorsVendorIdResearchResearchIdDetailsRoute
+  '/admin/vendors/$vendorId/research/$researchId': typeof AdminVendorsVendorIdResearchResearchIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -247,8 +194,6 @@ export interface FileRoutesById {
   '/$': typeof SplatRoute
   '/claim': typeof ClaimRoute
   '/dashboard': typeof DashboardRoute
-  '/profile': typeof ProfileRoute
-  '/vendors': typeof VendorsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -256,19 +201,16 @@ export interface FileRoutesById {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/compliance/$vendorId': typeof ComplianceVendorIdRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/product/$productId': typeof ProductProductIdRoute
-  '/vendor/$vendorId': typeof VendorVendorIdRoute
-  '/vendor/dashboard': typeof VendorDashboardRoute
-  '/vendor/verify': typeof VendorVerifyRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
-  '/demo/sentry/testing': typeof DemoSentryTestingRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/vendors/verify': typeof VendorsVerifyRoute
+  '/profile/': typeof ProfileIndexRoute
+  '/vendors/$vendorId/dashboard': typeof VendorsVendorIdDashboardRoute
+  '/admin/vendors/': typeof AdminVendorsIndexRoute
+  '/products/$productId/': typeof ProductsProductIdIndexRoute
+  '/vendors/$vendorId/': typeof VendorsVendorIdIndexRoute
   '/admin/vendors/$vendorId/edit': typeof AdminVendorsVendorIdEditRoute
-  '/admin/vendors/$vendorId/research/$researchId': typeof AdminVendorsVendorIdResearchResearchIdRoute
+  '/admin/vendors/$vendorId/research/': typeof AdminVendorsVendorIdResearchIndexRoute
+  '/admin/vendors/$vendorId/research/$researchId/details': typeof AdminVendorsVendorIdResearchResearchIdDetailsRoute
+  '/admin/vendors/$vendorId/research/$researchId/': typeof AdminVendorsVendorIdResearchResearchIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -277,8 +219,6 @@ export interface FileRouteTypes {
     | '/$'
     | '/claim'
     | '/dashboard'
-    | '/profile'
-    | '/vendors'
     | '/admin/dashboard'
     | '/auth/forgot-password'
     | '/auth/reset-password'
@@ -286,18 +226,15 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify-email'
     | '/compliance/$vendorId'
-    | '/demo/table'
-    | '/demo/tanstack-query'
-    | '/product/$productId'
-    | '/vendor/$vendorId'
-    | '/vendor/dashboard'
-    | '/vendor/verify'
-    | '/demo/form/address'
-    | '/demo/form/simple'
-    | '/demo/sentry/testing'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
+    | '/vendors/verify'
+    | '/profile'
+    | '/vendors/$vendorId/dashboard'
+    | '/admin/vendors'
+    | '/products/$productId'
+    | '/vendors/$vendorId'
     | '/admin/vendors/$vendorId/edit'
+    | '/admin/vendors/$vendorId/research'
+    | '/admin/vendors/$vendorId/research/$researchId/details'
     | '/admin/vendors/$vendorId/research/$researchId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -305,8 +242,6 @@ export interface FileRouteTypes {
     | '/$'
     | '/claim'
     | '/dashboard'
-    | '/profile'
-    | '/vendors'
     | '/admin/dashboard'
     | '/auth/forgot-password'
     | '/auth/reset-password'
@@ -314,18 +249,15 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify-email'
     | '/compliance/$vendorId'
-    | '/demo/table'
-    | '/demo/tanstack-query'
-    | '/product/$productId'
-    | '/vendor/$vendorId'
-    | '/vendor/dashboard'
-    | '/vendor/verify'
-    | '/demo/form/address'
-    | '/demo/form/simple'
-    | '/demo/sentry/testing'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
+    | '/vendors/verify'
+    | '/profile'
+    | '/vendors/$vendorId/dashboard'
+    | '/admin/vendors'
+    | '/products/$productId'
+    | '/vendors/$vendorId'
     | '/admin/vendors/$vendorId/edit'
+    | '/admin/vendors/$vendorId/research'
+    | '/admin/vendors/$vendorId/research/$researchId/details'
     | '/admin/vendors/$vendorId/research/$researchId'
   id:
     | '__root__'
@@ -333,8 +265,6 @@ export interface FileRouteTypes {
     | '/$'
     | '/claim'
     | '/dashboard'
-    | '/profile'
-    | '/vendors'
     | '/admin/dashboard'
     | '/auth/forgot-password'
     | '/auth/reset-password'
@@ -342,19 +272,16 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify-email'
     | '/compliance/$vendorId'
-    | '/demo/table'
-    | '/demo/tanstack-query'
-    | '/product/$productId'
-    | '/vendor/$vendorId'
-    | '/vendor/dashboard'
-    | '/vendor/verify'
-    | '/demo/form/address'
-    | '/demo/form/simple'
-    | '/demo/sentry/testing'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
+    | '/vendors/verify'
+    | '/profile/'
+    | '/vendors/$vendorId/dashboard'
+    | '/admin/vendors/'
+    | '/products/$productId/'
+    | '/vendors/$vendorId/'
     | '/admin/vendors/$vendorId/edit'
-    | '/admin/vendors/$vendorId/research/$researchId'
+    | '/admin/vendors/$vendorId/research/'
+    | '/admin/vendors/$vendorId/research/$researchId/details'
+    | '/admin/vendors/$vendorId/research/$researchId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -362,8 +289,6 @@ export interface RootRouteChildren {
   SplatRoute: typeof SplatRoute
   ClaimRoute: typeof ClaimRoute
   DashboardRoute: typeof DashboardRoute
-  ProfileRoute: typeof ProfileRoute
-  VendorsRoute: typeof VendorsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
@@ -371,62 +296,20 @@ export interface RootRouteChildren {
   AuthSignupRoute: typeof AuthSignupRoute
   AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
   ComplianceVendorIdRoute: typeof ComplianceVendorIdRoute
-  DemoTableRoute: typeof DemoTableRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
-  ProductProductIdRoute: typeof ProductProductIdRoute
-  VendorVendorIdRoute: typeof VendorVendorIdRoute
-  VendorDashboardRoute: typeof VendorDashboardRoute
-  VendorVerifyRoute: typeof VendorVerifyRoute
-  DemoFormAddressRoute: typeof DemoFormAddressRoute
-  DemoFormSimpleRoute: typeof DemoFormSimpleRoute
-  DemoSentryTestingRoute: typeof DemoSentryTestingRoute
-  DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
-  DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
+  VendorsVerifyRoute: typeof VendorsVerifyRoute
+  ProfileIndexRoute: typeof ProfileIndexRoute
+  VendorsVendorIdDashboardRoute: typeof VendorsVendorIdDashboardRoute
+  AdminVendorsIndexRoute: typeof AdminVendorsIndexRoute
+  ProductsProductIdIndexRoute: typeof ProductsProductIdIndexRoute
+  VendorsVendorIdIndexRoute: typeof VendorsVendorIdIndexRoute
   AdminVendorsVendorIdEditRoute: typeof AdminVendorsVendorIdEditRoute
-  AdminVendorsVendorIdResearchResearchIdRoute: typeof AdminVendorsVendorIdResearchResearchIdRoute
-}
-export interface FileServerRoutesByFullPath {
-  '/api/demo-names': typeof ApiDemoNamesServerRoute
-  '/api/demo-tq-todos': typeof ApiDemoTqTodosServerRoute
-}
-export interface FileServerRoutesByTo {
-  '/api/demo-names': typeof ApiDemoNamesServerRoute
-  '/api/demo-tq-todos': typeof ApiDemoTqTodosServerRoute
-}
-export interface FileServerRoutesById {
-  __root__: typeof rootServerRouteImport
-  '/api/demo-names': typeof ApiDemoNamesServerRoute
-  '/api/demo-tq-todos': typeof ApiDemoTqTodosServerRoute
-}
-export interface FileServerRouteTypes {
-  fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/demo-names' | '/api/demo-tq-todos'
-  fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/demo-names' | '/api/demo-tq-todos'
-  id: '__root__' | '/api/demo-names' | '/api/demo-tq-todos'
-  fileServerRoutesById: FileServerRoutesById
-}
-export interface RootServerRouteChildren {
-  ApiDemoNamesServerRoute: typeof ApiDemoNamesServerRoute
-  ApiDemoTqTodosServerRoute: typeof ApiDemoTqTodosServerRoute
+  AdminVendorsVendorIdResearchIndexRoute: typeof AdminVendorsVendorIdResearchIndexRoute
+  AdminVendorsVendorIdResearchResearchIdDetailsRoute: typeof AdminVendorsVendorIdResearchResearchIdDetailsRoute
+  AdminVendorsVendorIdResearchResearchIdIndexRoute: typeof AdminVendorsVendorIdResearchResearchIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/vendors': {
-      id: '/vendors'
-      path: '/vendors'
-      fullPath: '/vendors'
-      preLoaderRoute: typeof VendorsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -455,46 +338,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/vendor/verify': {
-      id: '/vendor/verify'
-      path: '/vendor/verify'
-      fullPath: '/vendor/verify'
-      preLoaderRoute: typeof VendorVerifyRouteImport
+    '/profile/': {
+      id: '/profile/'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/vendor/dashboard': {
-      id: '/vendor/dashboard'
-      path: '/vendor/dashboard'
-      fullPath: '/vendor/dashboard'
-      preLoaderRoute: typeof VendorDashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/vendor/$vendorId': {
-      id: '/vendor/$vendorId'
-      path: '/vendor/$vendorId'
-      fullPath: '/vendor/$vendorId'
-      preLoaderRoute: typeof VendorVendorIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/product/$productId': {
-      id: '/product/$productId'
-      path: '/product/$productId'
-      fullPath: '/product/$productId'
-      preLoaderRoute: typeof ProductProductIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/table': {
-      id: '/demo/table'
-      path: '/demo/table'
-      fullPath: '/demo/table'
-      preLoaderRoute: typeof DemoTableRouteImport
+    '/vendors/verify': {
+      id: '/vendors/verify'
+      path: '/vendors/verify'
+      fullPath: '/vendors/verify'
+      preLoaderRoute: typeof VendorsVerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compliance/$vendorId': {
@@ -546,39 +401,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/server-funcs': {
-      id: '/demo/start/server-funcs'
-      path: '/demo/start/server-funcs'
-      fullPath: '/demo/start/server-funcs'
-      preLoaderRoute: typeof DemoStartServerFuncsRouteImport
+    '/vendors/$vendorId/': {
+      id: '/vendors/$vendorId/'
+      path: '/vendors/$vendorId'
+      fullPath: '/vendors/$vendorId'
+      preLoaderRoute: typeof VendorsVendorIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/api-request': {
-      id: '/demo/start/api-request'
-      path: '/demo/start/api-request'
-      fullPath: '/demo/start/api-request'
-      preLoaderRoute: typeof DemoStartApiRequestRouteImport
+    '/products/$productId/': {
+      id: '/products/$productId/'
+      path: '/products/$productId'
+      fullPath: '/products/$productId'
+      preLoaderRoute: typeof ProductsProductIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/sentry/testing': {
-      id: '/demo/sentry/testing'
-      path: '/demo/sentry/testing'
-      fullPath: '/demo/sentry/testing'
-      preLoaderRoute: typeof DemoSentryTestingRouteImport
+    '/admin/vendors/': {
+      id: '/admin/vendors/'
+      path: '/admin/vendors'
+      fullPath: '/admin/vendors'
+      preLoaderRoute: typeof AdminVendorsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/form/simple': {
-      id: '/demo/form/simple'
-      path: '/demo/form/simple'
-      fullPath: '/demo/form/simple'
-      preLoaderRoute: typeof DemoFormSimpleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/form/address': {
-      id: '/demo/form/address'
-      path: '/demo/form/address'
-      fullPath: '/demo/form/address'
-      preLoaderRoute: typeof DemoFormAddressRouteImport
+    '/vendors/$vendorId/dashboard': {
+      id: '/vendors/$vendorId/dashboard'
+      path: '/vendors/$vendorId/dashboard'
+      fullPath: '/vendors/$vendorId/dashboard'
+      preLoaderRoute: typeof VendorsVendorIdDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/vendors/$vendorId/edit': {
@@ -588,30 +436,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminVendorsVendorIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/vendors/$vendorId/research/$researchId': {
-      id: '/admin/vendors/$vendorId/research/$researchId'
-      path: '/admin/vendors/$vendorId/research/$researchId'
-      fullPath: '/admin/vendors/$vendorId/research/$researchId'
-      preLoaderRoute: typeof AdminVendorsVendorIdResearchResearchIdRouteImport
+    '/admin/vendors/$vendorId/research/': {
+      id: '/admin/vendors/$vendorId/research/'
+      path: '/admin/vendors/$vendorId/research'
+      fullPath: '/admin/vendors/$vendorId/research'
+      preLoaderRoute: typeof AdminVendorsVendorIdResearchIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-  }
-}
-declare module '@tanstack/react-start/server' {
-  interface ServerFileRoutesByPath {
-    '/api/demo-tq-todos': {
-      id: '/api/demo-tq-todos'
-      path: '/api/demo-tq-todos'
-      fullPath: '/api/demo-tq-todos'
-      preLoaderRoute: typeof ApiDemoTqTodosServerRouteImport
-      parentRoute: typeof rootServerRouteImport
+    '/admin/vendors/$vendorId/research/$researchId/': {
+      id: '/admin/vendors/$vendorId/research/$researchId/'
+      path: '/admin/vendors/$vendorId/research/$researchId'
+      fullPath: '/admin/vendors/$vendorId/research/$researchId'
+      preLoaderRoute: typeof AdminVendorsVendorIdResearchResearchIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/api/demo-names': {
-      id: '/api/demo-names'
-      path: '/api/demo-names'
-      fullPath: '/api/demo-names'
-      preLoaderRoute: typeof ApiDemoNamesServerRouteImport
-      parentRoute: typeof rootServerRouteImport
+    '/admin/vendors/$vendorId/research/$researchId/details': {
+      id: '/admin/vendors/$vendorId/research/$researchId/details'
+      path: '/admin/vendors/$vendorId/research/$researchId/details'
+      fullPath: '/admin/vendors/$vendorId/research/$researchId/details'
+      preLoaderRoute: typeof AdminVendorsVendorIdResearchResearchIdDetailsRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -621,8 +465,6 @@ const rootRouteChildren: RootRouteChildren = {
   SplatRoute: SplatRoute,
   ClaimRoute: ClaimRoute,
   DashboardRoute: DashboardRoute,
-  ProfileRoute: ProfileRoute,
-  VendorsRoute: VendorsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
@@ -630,28 +472,20 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignupRoute: AuthSignupRoute,
   AuthVerifyEmailRoute: AuthVerifyEmailRoute,
   ComplianceVendorIdRoute: ComplianceVendorIdRoute,
-  DemoTableRoute: DemoTableRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
-  ProductProductIdRoute: ProductProductIdRoute,
-  VendorVendorIdRoute: VendorVendorIdRoute,
-  VendorDashboardRoute: VendorDashboardRoute,
-  VendorVerifyRoute: VendorVerifyRoute,
-  DemoFormAddressRoute: DemoFormAddressRoute,
-  DemoFormSimpleRoute: DemoFormSimpleRoute,
-  DemoSentryTestingRoute: DemoSentryTestingRoute,
-  DemoStartApiRequestRoute: DemoStartApiRequestRoute,
-  DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
+  VendorsVerifyRoute: VendorsVerifyRoute,
+  ProfileIndexRoute: ProfileIndexRoute,
+  VendorsVendorIdDashboardRoute: VendorsVendorIdDashboardRoute,
+  AdminVendorsIndexRoute: AdminVendorsIndexRoute,
+  ProductsProductIdIndexRoute: ProductsProductIdIndexRoute,
+  VendorsVendorIdIndexRoute: VendorsVendorIdIndexRoute,
   AdminVendorsVendorIdEditRoute: AdminVendorsVendorIdEditRoute,
-  AdminVendorsVendorIdResearchResearchIdRoute:
-    AdminVendorsVendorIdResearchResearchIdRoute,
+  AdminVendorsVendorIdResearchIndexRoute:
+    AdminVendorsVendorIdResearchIndexRoute,
+  AdminVendorsVendorIdResearchResearchIdDetailsRoute:
+    AdminVendorsVendorIdResearchResearchIdDetailsRoute,
+  AdminVendorsVendorIdResearchResearchIdIndexRoute:
+    AdminVendorsVendorIdResearchResearchIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-const rootServerRouteChildren: RootServerRouteChildren = {
-  ApiDemoNamesServerRoute: ApiDemoNamesServerRoute,
-  ApiDemoTqTodosServerRoute: ApiDemoTqTodosServerRoute,
-}
-export const serverRouteTree = rootServerRouteImport
-  ._addFileChildren(rootServerRouteChildren)
-  ._addFileTypes<FileServerRouteTypes>()

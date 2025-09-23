@@ -2,20 +2,20 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useState, type ChangeEvent, type ClipboardEvent, type FormEvent, type KeyboardEvent } from 'react'
 import { ArrowLeft, Loader2, Save, X } from 'lucide-react'
 
-import { AuthGuard } from '../../components/guards/AuthGuard'
-import { Button } from '../../components/ui/button'
-import { Input } from '../../components/ui/input'
-import { Label } from '../../components/ui/label'
-import { Switch } from '../../components/ui/switch'
-import { Textarea } from '../../components/ui/textarea'
-import { useVendor, useUpdateVendor, useVendorResearchHistory } from '../../queries/vendors'
+import { AuthGuard } from '@/components/guards/AuthGuard'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
+import { useVendor, useUpdateVendor, useVendorResearchHistory } from '@/queries/vendors'
 import {
   PricingModel,
   VendorCategory,
   VendorSize,
   VendorStatus,
   VerificationStatus,
-} from '../../types/api'
+} from '@/types/api'
 
 type FormState = {
   companyName: string
@@ -343,7 +343,7 @@ const VendorEditPage = () => {
                 Back to dashboard
               </Button>
               <Button asChild variant="outline">
-                <Link to="/vendor/$vendorId" params={{ vendorId }}>
+                <Link to="/vendors/$vendorId" params={{ vendorId }}>
                   View public profile
                 </Link>
               </Button>

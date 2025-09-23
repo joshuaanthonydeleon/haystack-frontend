@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState, useMemo } from 'react'
 import { Search, Filter, Star, Building2, MapPin, Users, ExternalLink, Loader2 } from 'lucide-react'
-import { Button } from '../components/ui/button'
-import { Input } from '../components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
-import { DemoRequestModal } from '../components/DemoRequestModal'
-import { useVendors } from '../queries/vendors'
-import type { VendorSearchParams } from '../types/api'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DemoRequestModal } from '@/components/DemoRequestModal'
+import { useVendors } from '@/queries/vendors'
+import type { VendorSearchParams } from '@/types/api'
 
 const VendorSearch = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -138,7 +138,7 @@ const VendorSearch = () => {
         <div className="grid gap-6">
           {isLoading ? (
             // Loading skeleton
-            Array.from({ length: 3 }).map((_, index) => (
+            (Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="bg-white rounded-lg shadow-sm border p-6">
                 <div className="flex items-start gap-6">
                   <div className="w-20 h-20 bg-gray-200 rounded-lg animate-pulse" />
@@ -149,7 +149,7 @@ const VendorSearch = () => {
                   </div>
                 </div>
               </div>
-            ))
+            )))
           ) : error ? (
             <div className="text-center py-12">
               <p className="text-red-600 text-lg">Failed to load vendors</p>
@@ -225,7 +225,7 @@ const VendorSearch = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <Link to="/vendor/$vendorId" params={{ vendorId: vendor.id }}>
+                      <Link to="/vendors/$vendorId" params={{ vendorId: vendor.id }}>
                         <Button variant="outline" size="sm" className="flex items-center gap-2">
                           <ExternalLink className="w-4 h-4" />
                           View Profile
@@ -268,6 +268,6 @@ const VendorSearch = () => {
   )
 }
 
-export const Route = createFileRoute('/vendors')({
+export const Route = createFileRoute('/admin/vendors/')({
   component: VendorSearch,
 })

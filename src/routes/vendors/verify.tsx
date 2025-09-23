@@ -1,29 +1,20 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { 
-  Shield, 
-  Upload, 
-  CheckCircle, 
-  AlertCircle, 
-  FileText, 
-  Globe, 
+import {
+  Shield,
+  Upload,
+  CheckCircle,
+  AlertCircle,
+  FileText,
+  Globe,
   Building2,
   Mail,
-  Phone
 } from 'lucide-react'
-import { Button } from '../../components/ui/button'
-import { Input } from '../../components/ui/input'
-import { Label } from '../../components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
-import { AuthGuard } from '../../components/guards/AuthGuard'
-
-export const Route = createFileRoute('/vendor/verify')({
-  component: () => (
-    <AuthGuard requiredRole="vendor">
-      <VendorVerification />
-    </AuthGuard>
-  ),
-})
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { AuthGuard } from '@/components/guards/AuthGuard'
 
 const VendorVerification = () => {
   const [currentStep, setCurrentStep] = useState(1)
@@ -46,7 +37,7 @@ const VendorVerification = () => {
     yearsInBusiness: '',
     employeeCount: '',
     certifications: [] as string[],
-    clientReferences: [] as Array<{name: string, contact: string, relationship: string}>
+    clientReferences: [] as Array<{ name: string, contact: string, relationship: string }>
   })
   const [uploadedFiles, setUploadedFiles] = useState<Record<string, File>>({})
 
@@ -132,11 +123,10 @@ const VendorVerification = () => {
             <div
               key={type.id}
               onClick={() => setVerificationType(type.id)}
-              className={`border-2 rounded-lg p-6 cursor-pointer transition-colors ${
-                verificationType === type.id
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
+              className={`border-2 rounded-lg p-6 cursor-pointer transition-colors ${verificationType === type.id
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-gray-200 hover:border-gray-300'
+                }`}
             >
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-white rounded-lg shadow-sm">
@@ -145,18 +135,17 @@ const VendorVerification = () => {
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900 mb-1">{type.name}</h3>
                   <p className="text-sm text-gray-600 mb-3">{type.description}</p>
-                  
+
                   <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
-                    <span className={`px-2 py-1 rounded-full ${
-                      type.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
+                    <span className={`px-2 py-1 rounded-full ${type.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
                       type.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
+                        'bg-red-100 text-red-700'
+                      }`}>
                       {type.difficulty}
                     </span>
                     <span>~{type.timeframe}</span>
                   </div>
-                  
+
                   <div>
                     <p className="text-xs font-medium text-gray-700 mb-1">Requirements:</p>
                     <ul className="text-xs text-gray-600 space-y-1">
@@ -358,7 +347,7 @@ const VendorVerification = () => {
                 <h3 className="font-medium text-gray-900">{doc}</h3>
                 <span className="text-sm text-red-600">Required</span>
               </div>
-              
+
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
                 <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-sm text-gray-600 mb-2">Drop files here or click to browse</p>
@@ -379,7 +368,7 @@ const VendorVerification = () => {
                 </Button>
                 <p className="text-xs text-gray-500 mt-2">PDF, DOC, or Image files (max 10MB)</p>
               </div>
-              
+
               {uploadedFiles[doc] && (
                 <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
                   <CheckCircle className="w-4 h-4" />
@@ -491,7 +480,7 @@ const VendorVerification = () => {
           <div>
             <h3 className="font-medium text-yellow-900 mb-1">Verification Process</h3>
             <p className="text-sm text-yellow-800">
-              We will contact the provided representative to verify their authority to represent the company. 
+              We will contact the provided representative to verify their authority to represent the company.
               This may include phone verification and/or email confirmation.
             </p>
           </div>
@@ -515,7 +504,7 @@ const VendorVerification = () => {
 
       <div className="bg-white rounded-lg border p-6">
         <h3 className="text-lg font-semibold mb-4">Verification Summary</h3>
-        
+
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <h4 className="font-medium text-gray-900 mb-2">Verification Method</h4>
@@ -597,11 +586,10 @@ const VendorVerification = () => {
           <div className="flex items-center justify-between">
             {verificationSteps.map((step, index) => (
               <div key={step.id} className="flex items-center">
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                  currentStep >= step.id
-                    ? 'bg-blue-600 border-blue-600 text-white'
-                    : 'border-gray-300 text-gray-500'
-                }`}>
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${currentStep >= step.id
+                  ? 'bg-blue-600 border-blue-600 text-white'
+                  : 'border-gray-300 text-gray-500'
+                  }`}>
                   {currentStep > step.id ? (
                     <CheckCircle className="w-6 h-6" />
                   ) : (
@@ -609,20 +597,18 @@ const VendorVerification = () => {
                   )}
                 </div>
                 {index < verificationSteps.length - 1 && (
-                  <div className={`hidden sm:block w-20 h-1 ${
-                    currentStep > step.id ? 'bg-blue-600' : 'bg-gray-300'
-                  }`} />
+                  <div className={`hidden sm:block w-20 h-1 ${currentStep > step.id ? 'bg-blue-600' : 'bg-gray-300'
+                    }`} />
                 )}
               </div>
             ))}
           </div>
-          
+
           <div className="flex justify-between mt-4">
             {verificationSteps.map((step) => (
               <div key={step.id} className="text-center" style={{ width: '120px' }}>
-                <p className={`text-sm font-medium ${
-                  currentStep >= step.id ? 'text-blue-600' : 'text-gray-500'
-                }`}>
+                <p className={`text-sm font-medium ${currentStep >= step.id ? 'text-blue-600' : 'text-gray-500'
+                  }`}>
                   {step.name}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">{step.description}</p>
@@ -639,3 +625,12 @@ const VendorVerification = () => {
     </div>
   )
 }
+
+export const Route = createFileRoute('/vendors/verify')({
+  component: () => (
+    <AuthGuard requiredRole="vendor">
+      <VendorVerification />
+    </AuthGuard>
+  ),
+})
+

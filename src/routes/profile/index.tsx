@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { User, Mail, Phone, Building2, Calendar, Edit, Settings } from 'lucide-react'
-import { Button } from '../components/ui/button'
-import { useAuth } from '../contexts/AuthContext'
+import { Button } from '@/components/ui/button'
+import { useAuth } from '@/contexts/AuthContext'
 
 
 const UserProfile = () => {
@@ -131,6 +131,6 @@ const UserProfile = () => {
   )
 }
 
-export const Route = createFileRoute('/profile')({
+export const Route = createFileRoute('/profile/')({
   component: UserProfile,
 })

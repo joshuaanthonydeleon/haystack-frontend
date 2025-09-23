@@ -1,22 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { 
-  Star, 
+import {
+  Star,
   Download,
   Heart,
   Share2,
   Play,
   Shield,
-  Award,
   Building2,
   Users,
   Calendar,
   ExternalLink,
   FileText,
-  Globe,
-  Phone,
-  Mail,
-  ChevronRight,
   Check,
   X,
   AlertCircle,
@@ -25,13 +20,9 @@ import {
   TrendingUp,
   Package
 } from 'lucide-react'
-import { Button } from '../components/ui/button'
-import { DemoRequestModal } from '../components/DemoRequestModal'
-import type { Product, ProductFeature, ProductSpecification, PricingTier, SystemRequirement, ProductReview } from '../types/api'
-
-export const Route = createFileRoute('/product/$productId')({
-  component: ProductProfile,
-})
+import { Button } from '@/components/ui/button'
+import { DemoRequestModal } from '@/components/DemoRequestModal'
+import { PricingModel, type Product, type ProductReview } from '@/types/api'
 
 const ProductProfile = () => {
   const { productId } = Route.useParams()
@@ -152,7 +143,7 @@ const ProductProfile = () => {
       'SWIFT',
       'ACH Network'
     ],
-    pricingModel: 'subscription',
+    pricingModel: PricingModel.subscription,
     priceRange: '$5,000 - $25,000/month',
     pricingDetails: [
       {
@@ -449,13 +440,12 @@ const ProductProfile = () => {
                                   Highlight
                                 </span>
                               )}
-                              <span className={`px-2 py-0.5 rounded text-xs ${
-                                feature.category === 'core' 
-                                  ? 'bg-green-100 text-green-700'
-                                  : feature.category === 'advanced'
+                              <span className={`px-2 py-0.5 rounded text-xs ${feature.category === 'core'
+                                ? 'bg-green-100 text-green-700'
+                                : feature.category === 'advanced'
                                   ? 'bg-orange-100 text-orange-700'
                                   : 'bg-purple-100 text-purple-700'
-                              }`}>
+                                }`}>
                                 {feature.category}
                               </span>
                             </div>
@@ -532,11 +522,10 @@ const ProductProfile = () => {
 
             <div className="grid md:grid-cols-3 gap-6">
               {product.pricingDetails.map((tier) => (
-                <div 
-                  key={tier.name} 
-                  className={`border rounded-lg p-6 relative ${
-                    tier.isPopular ? 'border-blue-500 bg-blue-50/50' : 'border-gray-200'
-                  }`}
+                <div
+                  key={tier.name}
+                  className={`border rounded-lg p-6 relative ${tier.isPopular ? 'border-blue-500 bg-blue-50/50' : 'border-gray-200'
+                    }`}
                 >
                   {tier.isPopular && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -545,7 +534,7 @@ const ProductProfile = () => {
                       </span>
                     </div>
                   )}
-                  
+
                   <div className="text-center mb-6">
                     <h4 className="text-xl font-semibold mb-2">{tier.name}</h4>
                     <p className="text-gray-600 text-sm mb-4">{tier.description}</p>
@@ -581,8 +570,8 @@ const ProductProfile = () => {
                     </div>
                   )}
 
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     variant={tier.isPopular ? 'default' : 'outline'}
                     onClick={() => setDemoModalOpen(true)}
                   >
@@ -633,9 +622,9 @@ const ProductProfile = () => {
                     <div className="text-right">
                       <div className="flex items-center gap-1 mb-1">
                         {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                          <Star
+                            key={i}
+                            className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
                           />
                         ))}
                       </div>
@@ -652,9 +641,9 @@ const ProductProfile = () => {
                       <div className="font-medium">Implementation</div>
                       <div className="flex items-center justify-center gap-1 mt-1">
                         {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={`w-3 h-3 ${i < review.implementationRating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                          <Star
+                            key={i}
+                            className={`w-3 h-3 ${i < review.implementationRating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
                           />
                         ))}
                       </div>
@@ -663,9 +652,9 @@ const ProductProfile = () => {
                       <div className="font-medium">Support</div>
                       <div className="flex items-center justify-center gap-1 mt-1">
                         {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={`w-3 h-3 ${i < review.supportRating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                          <Star
+                            key={i}
+                            className={`w-3 h-3 ${i < review.supportRating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
                           />
                         ))}
                       </div>
@@ -674,9 +663,9 @@ const ProductProfile = () => {
                       <div className="font-medium">Value</div>
                       <div className="flex items-center justify-center gap-1 mt-1">
                         {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={`w-3 h-3 ${i < review.valueRating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                          <Star
+                            key={i}
+                            className={`w-3 h-3 ${i < review.valueRating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
                           />
                         ))}
                       </div>
@@ -753,7 +742,7 @@ const ProductProfile = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex gap-3">
                 <Button onClick={() => setDemoModalOpen(true)}>
                   Contact Vendor
@@ -867,13 +856,12 @@ const ProductProfile = () => {
 
                   {/* Status Badge */}
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      product.status === 'active' 
-                        ? 'bg-green-100 text-green-800'
-                        : product.status === 'beta'
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.status === 'active'
+                      ? 'bg-green-100 text-green-800'
+                      : product.status === 'beta'
                         ? 'bg-yellow-100 text-yellow-800'
                         : 'bg-gray-100 text-gray-800'
-                    }`}>
+                      }`}>
                       {product.status}
                     </span>
                   </div>
@@ -885,8 +873,8 @@ const ProductProfile = () => {
             <div className="space-y-4">
               {/* Screenshot */}
               <div className="bg-gray-100 rounded-lg aspect-video overflow-hidden">
-                <img 
-                  src={product.screenshots[selectedScreenshot]} 
+                <img
+                  src={product.screenshots[selectedScreenshot]}
                   alt={`${product.name} screenshot`}
                   className="w-full h-full object-cover"
                 />
@@ -898,12 +886,11 @@ const ProductProfile = () => {
                   <button
                     key={index}
                     onClick={() => setSelectedScreenshot(index)}
-                    className={`w-16 h-12 bg-gray-100 rounded border-2 overflow-hidden ${
-                      selectedScreenshot === index ? 'border-blue-500' : 'border-transparent'
-                    }`}
+                    className={`w-16 h-12 bg-gray-100 rounded border-2 overflow-hidden ${selectedScreenshot === index ? 'border-blue-500' : 'border-transparent'
+                      }`}
                   >
-                    <img 
-                      src={screenshot} 
+                    <img
+                      src={screenshot}
                       alt={`Screenshot ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
@@ -961,11 +948,10 @@ const ProductProfile = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
                 >
                   {tab.label}
                 </button>
@@ -989,3 +975,7 @@ const ProductProfile = () => {
     </div>
   )
 }
+
+export const Route = createFileRoute('/products/$productId/')({
+  component: ProductProfile,
+})

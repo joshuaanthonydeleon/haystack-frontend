@@ -24,6 +24,13 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
+      "@/types/*": ["./src/types/*"],
+      "@/queries/*": ["./src/queries/*"],
+      "@/services/*": ["./src/services/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/routes/*": ["./src/routes/*"],
+      "@/utils/*": ["./src/utils/*"]
     }
   }
 }

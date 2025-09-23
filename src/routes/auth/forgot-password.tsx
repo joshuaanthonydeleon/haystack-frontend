@@ -1,27 +1,23 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Button } from '../components/ui/button'
-import { Input } from '../components/ui/input'
-import { Label } from '../components/ui/label'
-import { useForgotPassword } from '../queries/auth'
-
-export const Route = createFileRoute('/auth/forgot-password')({
-  component: ForgotPassword,
-})
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useForgotPassword } from '@/queries/auth'
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-  
+
   const forgotPasswordMutation = useForgotPassword()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
-    
+
     try {
       const response = await forgotPasswordMutation.mutateAsync({ email })
       if (response.success) {
@@ -125,3 +121,7 @@ const ForgotPassword = () => {
     </div>
   )
 }
+
+export const Route = createFileRoute('/auth/forgot-password')({
+  component: ForgotPassword,
+})

@@ -451,7 +451,7 @@ const AdminDashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex flex-wrap gap-2">
                           <Button asChild size="sm" variant="outline">
-                            <Link to="/vendor/$vendorId" params={{ vendorId: String(vendor.id) }}>
+                            <Link to="/vendors/$vendorId" params={{ vendorId: String(vendor.id) }}>
                               View
                             </Link>
                           </Button>
