@@ -53,6 +53,7 @@ const AdminDashboard = () => {
       try {
         setVendorError(null)
 
+        console.log('Loading admin data')
         const [metricsRes, performanceRes, claimsRes, vendorsRes] = await Promise.all([
           apiService.getAdminMetrics(),
           apiService.getVendorPerformanceMetrics(),
