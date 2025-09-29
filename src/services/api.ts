@@ -340,6 +340,9 @@ export class ApiService {
   // Vendor Claims
   async claimVendor(request: VendorClaimRequest): Promise<ApiResponse<VendorClaim>> {
     const { vendorId, ...payload } = request
+
+    console.log('vendorId', vendorId)
+
     return this.makeRequest<VendorClaim>(`/vendor/${vendorId}/claims`, {
       method: 'POST',
       body: JSON.stringify(payload)
@@ -348,6 +351,12 @@ export class ApiService {
 
   async getVendorClaims(): Promise<ApiResponse<VendorClaim[]>> {
     return this.makeRequest<VendorClaim[]>(`/vendor/claims`, {
+      method: 'GET'
+    })
+  }
+
+  async getVendorVerificationRequests(): Promise<ApiResponse<Vendor[]>> {
+    return this.makeRequest<Vendor[]>(`/vendor/verification-requests`, {
       method: 'GET'
     })
   }

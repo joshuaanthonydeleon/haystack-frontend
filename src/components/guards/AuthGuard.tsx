@@ -5,16 +5,16 @@ import type { User } from '../../types/api'
 
 interface AuthGuardProps {
   children: React.ReactNode
-  requiredRole?: User['accountType'] | User['accountType'][]
+  requiredRole?: User['role'] | User['role'][]
   fallbackPath?: string
 }
 
-export function AuthGuard({ 
-  children, 
-  requiredRole, 
-  fallbackPath = '/auth/signin' 
+export function AuthGuard({
+  children,
+  requiredRole,
+  fallbackPath = '/auth/signin'
 }: AuthGuardProps) {
-  const { isAuthenticated, hasRole, isLoading, user } = useAuth()
+  const { isAuthenticated, hasRole, isLoading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 

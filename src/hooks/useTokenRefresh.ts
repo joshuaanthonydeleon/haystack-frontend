@@ -3,11 +3,11 @@ import { useAuth } from '../contexts/AuthContext'
 
 export function useTokenRefresh() {
   const { refreshAuthToken, token, refreshToken, signOut } = useAuth()
-  const refreshTimeoutRef = useRef<NodeJS.Timeout>()
+  const refreshTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const isRefreshingRef = useRef(false)
 
   useEffect(() => {
-    if (!token || !refreshToken) return
+    if (!token || !refreshToken || !refreshAuthToken || !signOut) return
 
     // Function to refresh token
     const refreshTokenIfNeeded = async () => {
@@ -50,7 +50,7 @@ export function useTokenRefresh() {
         clearTimeout(refreshTimeoutRef.current)
       }
     }
-  }, [token, refreshToken, refreshAuthToken, signOut])
+  }, [token, refreshToken])
 
   // Cleanup on unmount
   useEffect(() => {

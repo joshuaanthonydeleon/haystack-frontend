@@ -1,0 +1,5 @@
+export { OverviewTab } from './OverviewTab'
+export { VendorsTab } from './VendorsTab'
+export { VerificationRequestsTab } from './VerificationRequestsTab'
+export { AnalyticsTab } from './AnalyticsTab'
+export { ActivityTab } from './ActivityTab'

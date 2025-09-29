@@ -1,10 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Building2, Search, Shield, TrendingUp, Users, ArrowRight } from 'lucide-react'
+import { Search, Shield, TrendingUp, Users, ArrowRight } from 'lucide-react'
 import { Button } from '../components/ui/button'
-
-export const Route = createFileRoute('/')({
-  component: HomePage,
-})
 
 const HomePage = () => {
   const features = [
@@ -37,11 +33,11 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Connect Banks with 
+              Connect Banks with
               <span className="block text-blue-200">Vetted Technology</span>
             </h1>
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Haystack FI is the marketplace where community banks and credit unions discover, 
+              Haystack FI is the marketplace where community banks and credit unions discover,
               vet, and connect with technology vendors that match their specific needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -72,7 +68,7 @@ const HomePage = () => {
               We're solving the vendor discovery problem for both banks and technology companies.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature) => {
               const Icon = feature.icon
@@ -116,3 +112,7 @@ const HomePage = () => {
     </div>
   )
 }
+
+export const Route = createFileRoute('/')({
+  component: HomePage,
+})

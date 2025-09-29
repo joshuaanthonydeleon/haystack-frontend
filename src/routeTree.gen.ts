@@ -26,6 +26,7 @@ import { Route as VendorsVendorIdIndexRouteImport } from './routes/vendors/$vend
 import { Route as ProductsProductIdIndexRouteImport } from './routes/products/$productId/index'
 import { Route as AdminVendorsIndexRouteImport } from './routes/admin/vendors/index'
 import { Route as VendorsVendorIdDashboardRouteImport } from './routes/vendors/$vendorId/dashboard'
+import { Route as AdminVendorsVendorIdVerifyRouteImport } from './routes/admin/vendors/$vendorId/verify'
 import { Route as AdminVendorsVendorIdEditRouteImport } from './routes/admin/vendors/$vendorId/edit'
 import { Route as AdminVendorsVendorIdResearchIndexRouteImport } from './routes/admin/vendors/$vendorId/research/index'
 import { Route as AdminVendorsVendorIdResearchResearchIdIndexRouteImport } from './routes/admin/vendors/$vendorId/research/$researchId/index'
@@ -117,6 +118,12 @@ const VendorsVendorIdDashboardRoute =
     path: '/vendors/$vendorId/dashboard',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminVendorsVendorIdVerifyRoute =
+  AdminVendorsVendorIdVerifyRouteImport.update({
+    id: '/admin/vendors/$vendorId/verify',
+    path: '/admin/vendors/$vendorId/verify',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminVendorsVendorIdEditRoute =
   AdminVendorsVendorIdEditRouteImport.update({
     id: '/admin/vendors/$vendorId/edit',
@@ -161,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/products/$productId': typeof ProductsProductIdIndexRoute
   '/vendors/$vendorId': typeof VendorsVendorIdIndexRoute
   '/admin/vendors/$vendorId/edit': typeof AdminVendorsVendorIdEditRoute
+  '/admin/vendors/$vendorId/verify': typeof AdminVendorsVendorIdVerifyRoute
   '/admin/vendors/$vendorId/research': typeof AdminVendorsVendorIdResearchIndexRoute
   '/admin/vendors/$vendorId/research/$researchId/details': typeof AdminVendorsVendorIdResearchResearchIdDetailsRoute
   '/admin/vendors/$vendorId/research/$researchId': typeof AdminVendorsVendorIdResearchResearchIdIndexRoute
@@ -184,6 +192,7 @@ export interface FileRoutesByTo {
   '/products/$productId': typeof ProductsProductIdIndexRoute
   '/vendors/$vendorId': typeof VendorsVendorIdIndexRoute
   '/admin/vendors/$vendorId/edit': typeof AdminVendorsVendorIdEditRoute
+  '/admin/vendors/$vendorId/verify': typeof AdminVendorsVendorIdVerifyRoute
   '/admin/vendors/$vendorId/research': typeof AdminVendorsVendorIdResearchIndexRoute
   '/admin/vendors/$vendorId/research/$researchId/details': typeof AdminVendorsVendorIdResearchResearchIdDetailsRoute
   '/admin/vendors/$vendorId/research/$researchId': typeof AdminVendorsVendorIdResearchResearchIdIndexRoute
@@ -208,6 +217,7 @@ export interface FileRoutesById {
   '/products/$productId/': typeof ProductsProductIdIndexRoute
   '/vendors/$vendorId/': typeof VendorsVendorIdIndexRoute
   '/admin/vendors/$vendorId/edit': typeof AdminVendorsVendorIdEditRoute
+  '/admin/vendors/$vendorId/verify': typeof AdminVendorsVendorIdVerifyRoute
   '/admin/vendors/$vendorId/research/': typeof AdminVendorsVendorIdResearchIndexRoute
   '/admin/vendors/$vendorId/research/$researchId/details': typeof AdminVendorsVendorIdResearchResearchIdDetailsRoute
   '/admin/vendors/$vendorId/research/$researchId/': typeof AdminVendorsVendorIdResearchResearchIdIndexRoute
@@ -233,6 +243,7 @@ export interface FileRouteTypes {
     | '/products/$productId'
     | '/vendors/$vendorId'
     | '/admin/vendors/$vendorId/edit'
+    | '/admin/vendors/$vendorId/verify'
     | '/admin/vendors/$vendorId/research'
     | '/admin/vendors/$vendorId/research/$researchId/details'
     | '/admin/vendors/$vendorId/research/$researchId'
@@ -256,6 +267,7 @@ export interface FileRouteTypes {
     | '/products/$productId'
     | '/vendors/$vendorId'
     | '/admin/vendors/$vendorId/edit'
+    | '/admin/vendors/$vendorId/verify'
     | '/admin/vendors/$vendorId/research'
     | '/admin/vendors/$vendorId/research/$researchId/details'
     | '/admin/vendors/$vendorId/research/$researchId'
@@ -279,6 +291,7 @@ export interface FileRouteTypes {
     | '/products/$productId/'
     | '/vendors/$vendorId/'
     | '/admin/vendors/$vendorId/edit'
+    | '/admin/vendors/$vendorId/verify'
     | '/admin/vendors/$vendorId/research/'
     | '/admin/vendors/$vendorId/research/$researchId/details'
     | '/admin/vendors/$vendorId/research/$researchId/'
@@ -303,6 +316,7 @@ export interface RootRouteChildren {
   ProductsProductIdIndexRoute: typeof ProductsProductIdIndexRoute
   VendorsVendorIdIndexRoute: typeof VendorsVendorIdIndexRoute
   AdminVendorsVendorIdEditRoute: typeof AdminVendorsVendorIdEditRoute
+  AdminVendorsVendorIdVerifyRoute: typeof AdminVendorsVendorIdVerifyRoute
   AdminVendorsVendorIdResearchIndexRoute: typeof AdminVendorsVendorIdResearchIndexRoute
   AdminVendorsVendorIdResearchResearchIdDetailsRoute: typeof AdminVendorsVendorIdResearchResearchIdDetailsRoute
   AdminVendorsVendorIdResearchResearchIdIndexRoute: typeof AdminVendorsVendorIdResearchResearchIdIndexRoute
@@ -429,6 +443,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VendorsVendorIdDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/vendors/$vendorId/verify': {
+      id: '/admin/vendors/$vendorId/verify'
+      path: '/admin/vendors/$vendorId/verify'
+      fullPath: '/admin/vendors/$vendorId/verify'
+      preLoaderRoute: typeof AdminVendorsVendorIdVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/vendors/$vendorId/edit': {
       id: '/admin/vendors/$vendorId/edit'
       path: '/admin/vendors/$vendorId/edit'
@@ -479,6 +500,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsProductIdIndexRoute: ProductsProductIdIndexRoute,
   VendorsVendorIdIndexRoute: VendorsVendorIdIndexRoute,
   AdminVendorsVendorIdEditRoute: AdminVendorsVendorIdEditRoute,
+  AdminVendorsVendorIdVerifyRoute: AdminVendorsVendorIdVerifyRoute,
   AdminVendorsVendorIdResearchIndexRoute:
     AdminVendorsVendorIdResearchIndexRoute,
   AdminVendorsVendorIdResearchResearchIdDetailsRoute:
