@@ -1,13 +1,11 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useEffect, useMemo, useState, type ChangeEvent, type ClipboardEvent, type FormEvent, type KeyboardEvent } from 'react'
-import { ArrowLeft, Loader2, Save, X } from 'lucide-react'
+import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 
 import { AuthGuard } from '@/components/guards/AuthGuard'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
+import { VendorEditForm } from '@/components/vendor/VendorEditForm'
+import { VendorResearchHistory } from '@/components/vendor/VendorResearchHistory'
 import { useVendor, useUpdateVendor, useVendorResearchHistory } from '@/queries/vendors'
 import {
   PricingModel,
@@ -43,9 +41,6 @@ type FormState = {
   notes: string
 }
 
-type TextFormField = {
-  [K in keyof FormState]: FormState[K] extends string ? K : never
-}[keyof FormState]
 
 const defaultFormState: FormState = {
   companyName: '',
@@ -78,100 +73,6 @@ const emptyToNull = (value: string) => {
   return trimmed.length === 0 ? null : trimmed
 }
 
-type MultiValueInputProps = {
-  id: string
-  label: string
-  values: string[]
-  placeholder?: string
-  description?: string
-  onChange: (values: string[]) => void
-}
-
-const MultiValueInput = ({ id, label, values, placeholder, description, onChange }: MultiValueInputProps) => {
-  const [inputValue, setInputValue] = useState('')
-
-  const addValue = (rawValue: string) => {
-    const value = rawValue.trim()
-    if (!value) return
-    const exists = values.some((item) => item.toLowerCase() === value.toLowerCase())
-    if (exists) {
-      setInputValue('')
-      return
-    }
-    onChange([...values, value])
-    setInputValue('')
-  }
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' || event.key === ',' || event.key === 'Tab') {
-      if (inputValue.trim().length === 0) return
-      event.preventDefault()
-      addValue(inputValue)
-    }
-
-    if (event.key === 'Backspace' && inputValue.length === 0 && values.length > 0) {
-      event.preventDefault()
-      onChange(values.slice(0, values.length - 1))
-    }
-  }
-
-  const handleBlur = () => {
-    if (inputValue.trim().length > 0) {
-      addValue(inputValue)
-    }
-  }
-
-  const handlePaste = (event: ClipboardEvent<HTMLInputElement>) => {
-    const text = event.clipboardData.getData('text')
-    if (!text) return
-    event.preventDefault()
-    text
-      .split(',')
-      .map((item) => item.trim())
-      .filter((item) => item.length > 0)
-      .forEach(addValue)
-  }
-
-  const removeValue = (value: string) => {
-    onChange(values.filter((item) => item !== value))
-  }
-
-  return (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
-      <div className="border-input focus-within:border-ring focus-within:ring-ring/50 relative flex min-h-11 w-full flex-wrap items-center gap-2 rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-within:ring-[3px]">
-        {values.map((value) => (
-          <span
-            key={value}
-            className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-3 py-1 text-xs"
-          >
-            {value}
-            <button
-              type="button"
-              className="hover:text-primary/80 focus-visible:outline-none"
-              onClick={() => removeValue(value)}
-              aria-label={`Remove ${label} ${value}`}
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </span>
-        ))}
-        <input
-          id={id}
-          value={inputValue}
-          onChange={(event) => setInputValue(event.target.value)}
-          onKeyDown={handleKeyDown}
-          onBlur={handleBlur}
-          onPaste={handlePaste}
-          placeholder={values.length === 0 ? placeholder : undefined}
-          className="bg-transparent flex-1 min-w-[8rem] border-none outline-none text-sm"
-        />
-      </div>
-      {description && <p className="text-xs text-gray-500">{description}</p>}
-    </div>
-  )
-}
-
 const VendorEditPage = () => {
   const { vendorId } = Route.useParams()
   const navigate = useNavigate()
@@ -185,18 +86,13 @@ const VendorEditPage = () => {
   const [formState, setFormState] = useState<FormState>(defaultFormState)
   const [formError, setFormError] = useState<string | null>(null)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
-
-  const statusBadgeStyles: Record<string, string> = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    in_progress: 'bg-blue-100 text-blue-800',
-    completed: 'bg-green-100 text-green-800',
-    failed: 'bg-red-100 text-red-800',
-  }
+  const [previousStatus, setPreviousStatus] = useState<'' | VendorStatus>('')
 
   useEffect(() => {
     if (!vendor) return
 
     const profile = vendor.profile
+    const currentStatus = profile?.status ?? ''
 
     setFormState({
       companyName: vendor.companyName ?? '',
@@ -214,7 +110,7 @@ const VendorEditPage = () => {
       logoUrl: profile?.logoUrl ?? '',
       pricingModel: profile?.pricingModel ?? '',
       priceRange: profile?.priceRange ?? '',
-      status: profile?.status ?? '',
+      status: currentStatus,
       verificationStatus: profile?.verificationStatus ?? '',
       tags: profile?.tags ?? [],
       features: profile?.features ?? [],
@@ -223,13 +119,41 @@ const VendorEditPage = () => {
       pricingNotes: profile?.pricingNotes ?? '',
       notes: profile?.notes ?? '',
     })
+
+    // Set the previous status for comparison
+    setPreviousStatus(currentStatus)
   }, [vendor])
 
-  const handleInputChange = (field: TextFormField) => (
+  const handleInputChange = (field: keyof FormState) => (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { value } = event.target
     setFormState((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleSwitchChange = (field: keyof FormState) => (checked: boolean) => {
+    setFormState((prev) => ({ ...prev, [field]: checked }))
+  }
+
+  const handleTagsChange = (values: string[]) => {
+    setFormState((prev) => ({ ...prev, tags: values }))
+  }
+
+  const handleFeaturesChange = (values: string[]) => {
+    setFormState((prev) => ({ ...prev, features: values }))
+  }
+
+  const handleIntegrationsChange = (values: string[]) => {
+    setFormState((prev) => ({ ...prev, integrations: values }))
+  }
+
+  const handleTargetCustomersChange = (values: string[]) => {
+    setFormState((prev) => ({ ...prev, targetCustomers: values }))
+  }
+
+  const handleStatusChange = () => {
+    // Update the previous status when status is actually changed
+    setPreviousStatus(formState.status)
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -289,17 +213,6 @@ const VendorEditPage = () => {
       )
     }
   }
-
-  const selectOptions = useMemo(
-    () => ({
-      categories: Object.values(VendorCategory),
-      sizes: Object.values(VendorSize),
-      pricingModels: Object.values(PricingModel),
-      statuses: Object.values(VendorStatus),
-      verificationStatuses: Object.values(VerificationStatus),
-    }),
-    []
-  )
 
   if (isLoading) {
     return (
@@ -362,315 +275,27 @@ const VendorEditPage = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border">
-          <form onSubmit={handleSubmit} className="space-y-8 p-6">
-            <section className="grid gap-6 lg:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="companyName">Company name</Label>
-                <Input
-                  id="companyName"
-                  value={formState.companyName}
-                  onChange={handleInputChange('companyName')}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
-                <Input
-                  id="website"
-                  value={formState.website}
-                  onChange={handleInputChange('website')}
-                  placeholder="https://example.com"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={formState.location}
-                  onChange={handleInputChange('location')}
-                  placeholder="Austin, TX"
-                />
-              </div>
-              <div className="grid grid-cols-[auto_1fr] items-center gap-3 pt-6">
-                <Label htmlFor="isActive">Active</Label>
-                <Switch
-                  id="isActive"
-                  checked={formState.isActive}
-                  onCheckedChange={(checked) =>
-                    setFormState((prev) => ({ ...prev, isActive: checked }))
-                  }
-                />
-              </div>
-            </section>
+        <VendorEditForm
+          formState={formState}
+          formError={formError}
+          saveMessage={saveMessage}
+          isSubmitting={updateVendor.isPending}
+          onInputChange={handleInputChange}
+          onSwitchChange={handleSwitchChange}
+          onTagsChange={handleTagsChange}
+          onFeaturesChange={handleFeaturesChange}
+          onIntegrationsChange={handleIntegrationsChange}
+          onTargetCustomersChange={handleTargetCustomersChange}
+          onSubmit={handleSubmit}
+          onStatusChange={handleStatusChange}
+          previousStatus={previousStatus}
+        />
 
-            <section className="grid gap-6 lg:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="summary">Summary</Label>
-                <Textarea
-                  id="summary"
-                  value={formState.summary}
-                  onChange={handleInputChange('summary')}
-                  rows={4}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="detailedDescription">Detailed description</Label>
-                <Textarea
-                  id="detailedDescription"
-                  value={formState.detailedDescription}
-                  onChange={handleInputChange('detailedDescription')}
-                  rows={4}
-                />
-              </div>
-            </section>
-
-            <section className="grid gap-6 lg:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <select
-                  id="category"
-                  className="border rounded-md px-3 py-2 text-sm"
-                  value={formState.category}
-                  onChange={handleInputChange('category')}
-                >
-                  <option value="">Select category</option>
-                  {selectOptions.categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="size">Company size</Label>
-                <select
-                  id="size"
-                  className="border rounded-md px-3 py-2 text-sm"
-                  value={formState.size}
-                  onChange={handleInputChange('size')}
-                >
-                  <option value="">Select size</option>
-                  {selectOptions.sizes.map((size) => (
-                    <option key={size} value={size}>
-                      {size}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="pricingModel">Pricing model</Label>
-                <select
-                  id="pricingModel"
-                  className="border rounded-md px-3 py-2 text-sm"
-                  value={formState.pricingModel}
-                  onChange={handleInputChange('pricingModel')}
-                >
-                  <option value="">Select pricing model</option>
-                  {selectOptions.pricingModels.map((model) => (
-                    <option key={model} value={model}>
-                      {model}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </section>
-
-            <section className="grid gap-6 lg:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor="founded">Founded</Label>
-                <Input
-                  id="founded"
-                  value={formState.founded}
-                  onChange={handleInputChange('founded')}
-                  placeholder="2014"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="employees">Employees</Label>
-                <Input
-                  id="employees"
-                  value={formState.employees}
-                  onChange={handleInputChange('employees')}
-                  placeholder="250"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="priceRange">Price range</Label>
-                <Input
-                  id="priceRange"
-                  value={formState.priceRange}
-                  onChange={handleInputChange('priceRange')}
-                  placeholder="$$"
-                />
-              </div>
-            </section>
-
-            <section className="grid gap-6 lg:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={formState.phone}
-                  onChange={handleInputChange('phone')}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  value={formState.email}
-                  onChange={handleInputChange('email')}
-                  type="email"
-                />
-              </div>
-            </section>
-
-            <section className="grid gap-6 lg:grid-cols-2">
-              <MultiValueInput
-                id="tags"
-                label="Tags"
-                values={formState.tags}
-                placeholder="Add a tag and press enter"
-                onChange={(values) => setFormState((prev) => ({ ...prev, tags: values }))}
-              />
-              <MultiValueInput
-                id="integrations"
-                label="Integrations"
-                values={formState.integrations}
-                placeholder="Add an integration and press enter"
-                onChange={(values) => setFormState((prev) => ({ ...prev, integrations: values }))}
-              />
-            </section>
-
-            <section className="grid gap-6 lg:grid-cols-2">
-              <MultiValueInput
-                id="features"
-                label="Key features"
-                values={formState.features}
-                placeholder="List a feature and press enter"
-                onChange={(values) => setFormState((prev) => ({ ...prev, features: values }))}
-              />
-              <MultiValueInput
-                id="targetCustomers"
-                label="Target customers"
-                values={formState.targetCustomers}
-                placeholder="Add a customer segment"
-                onChange={(values) =>
-                  setFormState((prev) => ({ ...prev, targetCustomers: values }))
-                }
-              />
-            </section>
-
-            <section className="grid gap-6 lg:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor="status">Vendor status</Label>
-                <select
-                  id="status"
-                  className="border rounded-md px-3 py-2 text-sm"
-                  value={formState.status}
-                  onChange={handleInputChange('status')}
-                >
-                  <option value="">Select status</option>
-                  {selectOptions.statuses.map((status) => (
-                    <option key={status} value={status}>
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="verificationStatus">Verification status</Label>
-                <select
-                  id="verificationStatus"
-                  className="border rounded-md px-3 py-2 text-sm"
-                  value={formState.verificationStatus}
-                  onChange={handleInputChange('verificationStatus')}
-                >
-                  <option value="">Select verification status</option>
-                  {selectOptions.verificationStatuses.map((status) => (
-                    <option key={status} value={status}>
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="logoUrl">Logo URL</Label>
-                <Input
-                  id="logoUrl"
-                  value={formState.logoUrl}
-                  onChange={handleInputChange('logoUrl')}
-                  placeholder="https://..."
-                />
-              </div>
-            </section>
-
-            <section className="grid gap-6 lg:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="pricingNotes">Pricing notes</Label>
-                <Textarea
-                  id="pricingNotes"
-                  value={formState.pricingNotes}
-                  onChange={handleInputChange('pricingNotes')}
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="notes">Internal notes</Label>
-                <Textarea
-                  id="notes"
-                  value={formState.notes}
-                  onChange={handleInputChange('notes')}
-                  rows={3}
-                />
-              </div>
-            </section>
-
-            {formError && (
-              <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                {formError}
-              </div>
-            )}
-
-            {saveMessage && (
-              <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-                {saveMessage}
-              </div>
-            )}
-
-            <div className="flex justify-end">
-              <Button type="submit" disabled={updateVendor.isPending}>
-                {updateVendor.isPending ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4 mr-2" />
-                )}
-                Save changes
-              </Button>
-            </div>
-          </form>
-        </div>
-
-        <div className="mt-8 space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">AI Research History</h2>
-          <div className="bg-white rounded-lg border shadow-sm p-6 text-sm text-gray-600">
-            {researchLoading ? (
-              'Loading research history…'
-            ) : (
-              <>
-                <p>{researchHistory.length} research run(s) recorded.</p>
-                <div className="mt-4">
-                  <Button asChild variant="outline" size="sm">
-                    <Link to="/admin/vendors/$vendorId/research" params={{ vendorId }}>
-                      View full research history
-                    </Link>
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        <VendorResearchHistory
+          vendorId={vendorId}
+          researchHistory={researchHistory}
+          isLoading={researchLoading}
+        />
       </div>
     </div>
   )

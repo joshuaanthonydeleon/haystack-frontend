@@ -41,12 +41,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const storedToken = localStorage.getItem('auth_token')
         const storedRefreshToken = localStorage.getItem('auth_refresh_token')
         const storedUser = localStorage.getItem('auth_user')
-        
+
         if (storedToken && storedRefreshToken && storedUser) {
           setToken(storedToken)
           setRefreshToken(storedRefreshToken)
           setUser(JSON.parse(storedUser))
-          
+
           // Validate token with backend
           try {
             const response = await apiService.getCurrentUser()
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true)
       const response = await apiService.signIn(credentials)
-      
+
       if (response.success) {
         const { user, access_token, refresh_token } = response.data
         setUser(user)
@@ -112,9 +112,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       setIsLoading(true)
       const response = await apiService.signUp(userData)
-      
+
       if (response.success) {
-        const { user, access_token, refresh_token, message } = response.data
+        const { user, access_token, refresh_token } = response.data
         setUser(user)
         setToken(access_token)
         setRefreshToken(refresh_token)
@@ -122,9 +122,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Store authentication data for immediate access
         apiService.setAuthTokens(access_token, refresh_token)
         localStorage.setItem('auth_user', JSON.stringify(user))
-        
-        // Show success message
-        console.log(message)
+
       } else {
         throw new Error(response.error || 'Registration failed')
       }
@@ -146,17 +144,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const hasRole = (role: User['role'] | User['role'][]): boolean => {
     if (!user) return false
-    
+
     if (Array.isArray(role)) {
       return role.includes(user.role)
     }
-    
+
     return user.role === role
   }
 
   const getDashboardRoute = (): string => {
     if (!user) return '/'
-    
+
     switch (user.role) {
       case 'admin':
         return '/admin/dashboard'
@@ -169,7 +167,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const refreshUser = async () => {
     if (!token) return
-    
+
     try {
       const response = await apiService.getCurrentUser()
       if (response.success) {
@@ -185,7 +183,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const refreshAuthToken = async (): Promise<boolean> => {
     if (!refreshToken) return false
-    
+
     try {
       const response = await apiService.refreshToken({ refreshToken })
       if (response.success) {
@@ -201,7 +199,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error) {
       console.error('Failed to refresh token:', error)
     }
-    
+
     return false
   }
 
@@ -245,7 +243,7 @@ export function useRequireAuth() {
 
 export function useRequireRole(requiredRole: User['role'] | User['role'][]) {
   const { user, isAuthenticated, hasRole, isLoading } = useAuth()
-  
+
   return {
     user,
     isAuthenticated,

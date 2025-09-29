@@ -232,15 +232,12 @@ export class ApiService {
 
   // Vendors
   async searchVendors(params: VendorSearchParams): Promise<ApiResponse<VendorSearchResponse>> {
-    console.log('searchVendors', params)
     const queryParams = new URLSearchParams()
     if (params.q) queryParams.append('q', params.q)
     if (params.category) queryParams.append('category', params.category)
     if (params.size) queryParams.append('size', params.size)
     queryParams.append('page', (params.page || 1).toString())
     queryParams.append('limit', (params.limit || 10).toString())
-
-    console.log('queryParams', queryParams.toString())
 
     return this.makeRequest<VendorSearchResponse>(`/vendor/search?${queryParams.toString()}`, {
       method: 'GET'
@@ -340,8 +337,6 @@ export class ApiService {
   // Vendor Claims
   async claimVendor(request: VendorClaimRequest): Promise<ApiResponse<VendorClaim>> {
     const { vendorId, ...payload } = request
-
-    console.log('vendorId', vendorId)
 
     return this.makeRequest<VendorClaim>(`/vendor/${vendorId}/claims`, {
       method: 'POST',

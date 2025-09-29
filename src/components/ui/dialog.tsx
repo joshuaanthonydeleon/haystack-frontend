@@ -14,11 +14,11 @@ const Dialog = React.forwardRef<
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 bg-black bg-opacity-50"
         onClick={() => onOpenChange?.(false)}
       />
-      
+
       {/* Dialog */}
       <div
         ref={ref}
@@ -72,7 +72,7 @@ const DialogTitle = React.forwardRef<
 DialogTitle.displayName = "DialogTitle"
 
 const DialogDescription = React.forwardRef<
-  HTMLParagrapElement,
+  HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
   <p
@@ -101,6 +101,14 @@ const DialogClose = React.forwardRef<
 ))
 DialogClose.displayName = "DialogClose"
 
+const DialogFooter = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)} {...props} />
+))
+DialogFooter.displayName = "DialogFooter"
+
 export {
   Dialog,
   DialogContent,
@@ -108,4 +116,5 @@ export {
   DialogTitle,
   DialogDescription,
   DialogClose,
+  DialogFooter,
 }
