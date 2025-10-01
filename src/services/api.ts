@@ -258,6 +258,8 @@ export class ApiService {
   }
 
   async updateVendor(id: string, request: VendorUpdateRequest): Promise<ApiResponse<Vendor>> {
+    console.log('Updating vendor', id, request);
+
     return this.makeRequest<Vendor>(`/vendor/${id}`, {
       method: 'PUT',
       body: JSON.stringify(request)
