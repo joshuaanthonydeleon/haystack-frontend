@@ -45,22 +45,15 @@ const AdminDashboard = () => {
       try {
         setVendorError(null)
 
-        const [metricsRes, performanceRes, vendorsRes, verificationRequestsRes] = await Promise.all([
+        const [metricsRes, performanceRes, verificationRequestsRes] = await Promise.all([
           apiService.getAdminMetrics(),
           apiService.getVendorPerformanceMetrics(),
-          apiService.searchVendors({ limit: 100 }),
           apiService.getVendorVerificationRequests()
         ])
 
         if (metricsRes.success) setMetrics(metricsRes.data)
         if (performanceRes.success) setPerformanceData(performanceRes.data)
         if (verificationRequestsRes.success) setPendingVerifications(verificationRequestsRes.data)
-
-        if (vendorsRes.success) {
-          setVendors(vendorsRes.data.vendors)
-        } else if (vendorsRes.error) {
-          setVendorError(vendorsRes.error)
-        }
       } catch (error) {
         console.error('Failed to load admin data:', error)
         setVendorError('Failed to load vendors')
@@ -71,19 +64,6 @@ const AdminDashboard = () => {
 
     loadAdminData()
   }, [])
-
-  // const handleClaimAction = async (claimId: string, approved: boolean, reason?: string) => {
-  //   try {
-  //     const result = await apiService.approveVendorClaim(claimId, approved, reason)
-  //     if (result.success) {
-  //       setPendingClaims(prev => prev.filter(claim => claim.id !== claimId))
-  //       alert(`Claim ${approved ? 'approved' : 'rejected'} successfully!`)
-  //     }
-  //   } catch (error) {
-  //     console.error('Failed to process claim:', error)
-  //     alert('Failed to process claim. Please try again.')
-  //   }
-  // }
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
@@ -103,26 +83,6 @@ const AdminDashboard = () => {
     return Array.from(categories)
   }, [vendors])
 
-  const filteredVendors = useMemo(() => {
-    return vendors.filter(vendor => {
-      const profile = vendor.profile
-
-      if (vendorFilters.status !== 'all') {
-        if (!profile || profile.status !== vendorFilters.status) {
-          return false
-        }
-      }
-
-      if (vendorFilters.category !== 'all') {
-        if (!profile || profile.category !== vendorFilters.category) {
-          return false
-        }
-      }
-
-      return true
-    })
-  }, [vendors, vendorFilters])
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -134,30 +94,34 @@ const AdminDashboard = () => {
     )
   }
 
-
-
-
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'overview': 
+      case 'overview':
         return <OverviewTab metrics={metrics} onTabChange={setActiveTab} />
-      case 'vendors': 
+      case 'vendors':
         return (
           <VendorsTab
-            vendors={filteredVendors}
             vendorFilters={vendorFilters}
             setVendorFilters={setVendorFilters}
             categoryOptions={categoryOptions}
             vendorError={vendorError}
+            onVendorsLoaded={setVendors}
           />
         )
-      case 'verification-requests': 
-        return <VerificationRequestsTab pendingVerifications={pendingVerifications} />
-      case 'analytics': 
+      case 'verification-requests':
+        return (
+          <VerificationRequestsTab
+            pendingVerifications={pendingVerifications}
+            onVerificationCompleted={(vendorId) => {
+              setPendingVerifications(prev => prev.filter(vendor => vendor.id !== vendorId))
+            }}
+          />
+        )
+      case 'analytics':
         return <AnalyticsTab performanceData={performanceData} />
-      case 'activity': 
+      case 'activity':
         return <ActivityTab metrics={metrics} />
-      default: 
+      default:
         return <OverviewTab metrics={metrics} onTabChange={setActiveTab} />
     }
   }

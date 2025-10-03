@@ -358,6 +358,12 @@ export class ApiService {
     })
   }
 
+  async verifyVendor(id: string): Promise<ApiResponse<Vendor>> {
+    return this.makeRequest<Vendor>(`/vendor/verification-requests/${id}/verify`, {
+      method: 'POST'
+    })
+  }
+
   // Admin APIs
   async getAdminMetrics(): Promise<ApiResponse<AdminMetrics>> {
     return this.makeRequest<AdminMetrics>('/admin/metrics', {

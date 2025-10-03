@@ -1,25 +1,91 @@
-import { useState, useMemo } from 'react'
-import { Link } from '@tanstack/react-router'
+import { useState, useMemo, useEffect } from 'react'
+import { useMutation } from '@tanstack/react-query'
 import { Shield } from 'lucide-react'
 import { Button } from '../../../components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+  DialogFooter,
+} from '../../../components/ui/dialog'
+import { apiService } from '../../../services/api'
 import type { Vendor } from '../../../types/api'
 
 interface VerificationRequestsTabProps {
   pendingVerifications: Vendor[]
+  onVerificationCompleted?: (vendorId: string) => void
 }
 
-export const VerificationRequestsTab = ({ pendingVerifications }: VerificationRequestsTabProps) => {
+export const VerificationRequestsTab = ({ pendingVerifications, onVerificationCompleted }: VerificationRequestsTabProps) => {
   const [verificationPage, setVerificationPage] = useState(1)
   const [verificationPageSize, setVerificationPageSize] = useState(10)
+  const [verificationRequests, setVerificationRequests] = useState<Vendor[]>(pendingVerifications)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null)
+  const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+
+  useEffect(() => {
+    setVerificationRequests(pendingVerifications)
+  }, [pendingVerifications])
+
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(verificationRequests.length / verificationPageSize))
+    setVerificationPage(prev => Math.min(prev, totalPages))
+  }, [verificationRequests, verificationPageSize])
+
+  const verifyVendorMutation = useMutation({
+    mutationFn: async (vendorId: string) => {
+      const response = await apiService.verifyVendor(vendorId)
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to verify vendor')
+      }
+      return response.data
+    },
+    onSuccess: (_, vendorId) => {
+      setVerificationRequests(prev => prev.filter(verification => verification.id !== vendorId))
+      onVerificationCompleted?.(vendorId)
+      setFeedbackMessage({ type: 'success', message: 'Vendor verified successfully.' })
+      setDialogOpen(false)
+      setSelectedVendor(null)
+    },
+    onError: (error: unknown) => {
+      setFeedbackMessage({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Failed to verify vendor. Please try again.',
+      })
+    },
+  })
+
+  const handleOpenDialog = (vendor: Vendor) => {
+    setSelectedVendor(vendor)
+    setDialogOpen(true)
+    setFeedbackMessage(null)
+  }
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false)
+    setSelectedVendor(null)
+  }
+
+  const handleVerifyVendor = () => {
+    if (!selectedVendor || verifyVendorMutation.isPending) {
+      return
+    }
+
+    verifyVendorMutation.mutate(selectedVendor.id)
+  }
 
   // Pagination logic for verification requests
   const paginatedVerifications = useMemo(() => {
     const startIndex = (verificationPage - 1) * verificationPageSize
     const endIndex = startIndex + verificationPageSize
-    return pendingVerifications.slice(startIndex, endIndex)
-  }, [pendingVerifications, verificationPage, verificationPageSize])
+    return verificationRequests.slice(startIndex, endIndex)
+  }, [verificationRequests, verificationPage, verificationPageSize])
 
-  const totalVerificationPages = Math.ceil(pendingVerifications.length / verificationPageSize)
+  const totalVerificationPages = Math.max(1, Math.ceil(verificationRequests.length / verificationPageSize))
 
   // Reset page when page size changes
   const handleVerificationPageSizeChange = (newPageSize: number) => {
@@ -33,7 +99,7 @@ export const VerificationRequestsTab = ({ pendingVerifications }: VerificationRe
         <h2 className="text-2xl font-bold text-gray-900">Verification Requests</h2>
         <div className="flex items-center gap-4">
           <div className="text-sm text-gray-600">
-            {pendingVerifications.length} pending verification requests
+            {verificationRequests.length} pending verification requests
           </div>
           <div className="flex items-center gap-2">
             <label className="text-sm text-gray-600">Show:</label>
@@ -51,11 +117,20 @@ export const VerificationRequestsTab = ({ pendingVerifications }: VerificationRe
         </div>
       </div>
 
+      {feedbackMessage && (
+        <div
+          className={`rounded-md border px-4 py-3 text-sm ${feedbackMessage.type === 'success'
+            ? 'border-green-200 bg-green-50 text-green-700'
+            : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+        >
+          {feedbackMessage.message}
+        </div>
+      )}
+
       <div className="grid gap-6">
         {paginatedVerifications.map((verification) => (
-          <Link
-            to="/admin/vendors/$vendorId/edit"
-            params={{ vendorId: verification.id.toString() }}
+          <div
             key={verification.id}
             className="bg-white rounded-lg shadow-sm border p-6"
           >
@@ -90,34 +165,24 @@ export const VerificationRequestsTab = ({ pendingVerifications }: VerificationRe
                 <p className="text-sm text-gray-600">{verification.id}</p>
               </div>
             </div>
-
-            {/* <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <Button
-                onClick={() => handleClaimAction(claim.id, true)}
-                className="bg-green-600 hover:bg-green-700"
+                onClick={() => handleOpenDialog(verification)}
+                className="bg-blue-600 hover:bg-blue-700"
               >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Approve
+                Review &amp; Verify
               </Button>
               <Button
                 variant="outline"
-                onClick={() => {
-                  const reason = prompt('Reason for rejection (optional):')
-                  handleClaimAction(claim.id, false, reason || undefined)
-                }}
+                onClick={() => handleOpenDialog(verification)}
               >
-                <XCircle className="w-4 h-4 mr-2" />
-                Reject
-              </Button>
-              <Button variant="outline">
-                <Eye className="w-4 h-4 mr-2" />
                 View Details
               </Button>
-            </div> */}
-          </Link>
+            </div>
+          </div>
         ))}
 
-        {pendingVerifications.length === 0 && (
+        {verificationRequests.length === 0 && (
           <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
             <Shield className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No Pending Verification Requests</h3>
@@ -127,13 +192,13 @@ export const VerificationRequestsTab = ({ pendingVerifications }: VerificationRe
       </div>
 
       {/* Pagination Navigation */}
-      {pendingVerifications.length > 0 && totalVerificationPages > 1 && (
+      {verificationRequests.length > 0 && totalVerificationPages > 1 && (
         <div className="flex items-center justify-between bg-white rounded-lg shadow-sm border p-4">
           <div className="flex items-center gap-2 text-sm text-gray-700">
             <span>
               Showing {((verificationPage - 1) * verificationPageSize) + 1} to{' '}
-              {Math.min(verificationPage * verificationPageSize, pendingVerifications.length)} of{' '}
-              {pendingVerifications.length} results
+              {Math.min(verificationPage * verificationPageSize, verificationRequests.length)} of{' '}
+              {verificationRequests.length} results
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -187,6 +252,63 @@ export const VerificationRequestsTab = ({ pendingVerifications }: VerificationRe
           </div>
         </div>
       )}
+
+      <Dialog open={dialogOpen} onOpenChange={(open) => (open ? setDialogOpen(true) : handleCloseDialog())}>
+        <DialogContent>
+          <DialogClose onClick={handleCloseDialog} />
+          <DialogHeader>
+            <DialogTitle>Verify Vendor</DialogTitle>
+            <DialogDescription>
+              Review the vendor details below and confirm to mark the vendor as verified.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedVendor && (
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium text-gray-700">Company Name</p>
+                <p className="text-base text-gray-900">{selectedVendor.companyName}</p>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Email</p>
+                  <p className="text-sm text-gray-600">{selectedVendor.profile.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Phone</p>
+                  <p className="text-sm text-gray-600">{selectedVendor.profile.phone}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Verification Status</p>
+                  <p className="text-sm text-gray-600 capitalize">{selectedVendor.profile.verificationStatus}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Vendor ID</p>
+                  <p className="text-sm text-gray-600">{selectedVendor.id}</p>
+                </div>
+              </div>
+              {feedbackMessage && feedbackMessage.type === 'error' && (
+                <div className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+                  {feedbackMessage.message}
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter className="mt-6">
+            <Button variant="outline" onClick={handleCloseDialog} disabled={verifyVendorMutation.isPending}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleVerifyVendor}
+              disabled={verifyVendorMutation.isPending}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {verifyVendorMutation.isPending ? 'Verifying...' : 'Confirm Verification'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

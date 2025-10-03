@@ -208,6 +208,7 @@ export interface VendorSearchParams {
   q?: string
   category?: string
   size?: string
+  status?: string
   location?: string
   tags?: string[]
   minRating?: number
@@ -221,6 +222,7 @@ export interface VendorSearchResponse {
   total: number
   page: number
   limit: number
+  totalPages: number
   hasMore: boolean
 }
 
