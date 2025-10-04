@@ -250,6 +250,7 @@ export class ApiService {
     })
   }
 
+  // TODO:
   async createVendor(request: VendorCreateRequest): Promise<ApiResponse<Vendor>> {
     return this.makeRequest<Vendor>('/vendors', {
       method: 'POST',
@@ -265,13 +266,13 @@ export class ApiService {
   }
 
   async startVendorResearch(id: string): Promise<ApiResponse<VendorResearchRecord>> {
-    return this.makeRequest<VendorResearchRecord>(`/research/vendor/${id}`, {
+    return this.makeRequest<VendorResearchRecord>(`/vendors/${id}/research`, {
       method: 'POST'
     })
   }
 
   async getVendorResearchHistory(id: string): Promise<ApiResponse<VendorResearchRecord[]>> {
-    return this.makeRequest<VendorResearchRecord[]>(`/research/vendor/${id}`, {
+    return this.makeRequest<VendorResearchRecord[]>(`/vendors/${id}/research`, {
       method: 'GET'
     })
   }
@@ -282,6 +283,7 @@ export class ApiService {
     })
   }
 
+  // TODO: make sure all of these are implmented on the backend
   // Demo Requests
   async createDemoRequest(request: DemoRequestCreateRequest): Promise<ApiResponse<DemoRequest>> {
     const vendorId = typeof request.vendorId === 'string'
@@ -322,7 +324,7 @@ export class ApiService {
 
   // Compliance Documents
   async getVendorDocuments(vendorId: string): Promise<ApiResponse<ComplianceDocument[]>> {
-    return this.makeRequest<ComplianceDocument[]>(`/vendor/${vendorId}/documents`, {
+    return this.makeRequest<ComplianceDocument[]>(`/vendors/${vendorId}/documents`, {
       method: 'GET'
     })
   }
@@ -338,14 +340,14 @@ export class ApiService {
   async claimVendor(request: VendorClaimRequest): Promise<ApiResponse<VendorClaim>> {
     const { vendorId, ...payload } = request
 
-    return this.makeRequest<VendorClaim>(`/vendor/${vendorId}/claims`, {
+    return this.makeRequest<VendorClaim>(`/vendors/${vendorId}/claims`, {
       method: 'POST',
       body: JSON.stringify(payload)
     })
   }
 
   async getVendorClaims(): Promise<ApiResponse<VendorClaim[]>> {
-    return this.makeRequest<VendorClaim[]>(`/vendor/claims`, {
+    return this.makeRequest<VendorClaim[]>(`/vendors/claims`, {
       method: 'GET'
     })
   }
