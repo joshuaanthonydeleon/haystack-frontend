@@ -1,11 +1,25 @@
+import { useState } from 'react'
 import { BarChart3 } from 'lucide-react'
 import type { VendorPerformanceMetrics } from '../../../types/api'
+import { VendorMetricsModal } from './modals/VendorMetricsModal'
 
 interface AnalyticsTabProps {
   performanceData: VendorPerformanceMetrics[]
 }
 
 export const AnalyticsTab = ({ performanceData }: AnalyticsTabProps) => {
+  const [selectedVendor, setSelectedVendor] = useState<VendorPerformanceMetrics | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleVendorClick = (vendor: VendorPerformanceMetrics) => {
+    setSelectedVendor(vendor)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedVendor(null)
+  }
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Performance Analytics</h2>
@@ -25,7 +39,11 @@ export const AnalyticsTab = ({ performanceData }: AnalyticsTabProps) => {
           <h3 className="text-lg font-semibold mb-4">Top Performers</h3>
           <div className="space-y-3">
             {performanceData.slice(0, 5).map((vendor, index) => (
-              <div key={vendor.vendorId} className="flex items-center justify-between">
+              <div 
+                key={vendor.vendorId} 
+                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors duration-200 border border-transparent hover:border-gray-200"
+                onClick={() => handleVendorClick(vendor)}
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-sm font-semibold text-blue-600">
                     {index + 1}
@@ -42,27 +60,12 @@ export const AnalyticsTab = ({ performanceData }: AnalyticsTabProps) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border p-6">
-        <h3 className="text-lg font-semibold mb-4">System Health</h3>
-        <div className="grid md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">99.9%</div>
-            <p className="text-sm text-gray-600">Uptime</p>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">1.2s</div>
-            <p className="text-sm text-gray-600">Avg Response Time</p>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">145ms</div>
-            <p className="text-sm text-gray-600">Database Query Time</p>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">12.4%</div>
-            <p className="text-sm text-gray-600">Error Rate</p>
-          </div>
-        </div>
-      </div>
+      {/* Vendor Metrics Modal */}
+      <VendorMetricsModal
+        vendor={selectedVendor}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   )
 }

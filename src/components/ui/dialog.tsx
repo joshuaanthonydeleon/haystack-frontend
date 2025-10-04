@@ -15,7 +15,7 @@ const Dialog = React.forwardRef<
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50"
+        className="fixed inset-0 bg-black/60"
         onClick={() => onOpenChange?.(false)}
       />
 

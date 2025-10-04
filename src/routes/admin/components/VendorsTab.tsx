@@ -116,7 +116,6 @@ export const VendorsTab = ({
           >
             {isLoading ? 'Searching...' : 'Search'}
           </Button>
-          <Button variant="outline">Export</Button>
         </div>
       </div>
 

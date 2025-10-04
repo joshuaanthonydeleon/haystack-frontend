@@ -239,47 +239,45 @@ export class ApiService {
     queryParams.append('page', (params.page || 1).toString())
     queryParams.append('limit', (params.limit || 10).toString())
 
-    return this.makeRequest<VendorSearchResponse>(`/vendor/search?${queryParams.toString()}`, {
+    return this.makeRequest<VendorSearchResponse>(`/vendors/search?${queryParams.toString()}`, {
       method: 'GET'
     })
   }
 
   async getVendor(id: string): Promise<ApiResponse<Vendor>> {
-    return this.makeRequest<Vendor>(`/vendor/${id}`, {
+    return this.makeRequest<Vendor>(`/vendors/${id}`, {
       method: 'GET'
     })
   }
 
   async createVendor(request: VendorCreateRequest): Promise<ApiResponse<Vendor>> {
-    return this.makeRequest<Vendor>('/vendor', {
+    return this.makeRequest<Vendor>('/vendors', {
       method: 'POST',
       body: JSON.stringify(request)
     })
   }
 
   async updateVendor(id: string, request: VendorUpdateRequest): Promise<ApiResponse<Vendor>> {
-    console.log('Updating vendor', id, request);
-
-    return this.makeRequest<Vendor>(`/vendor/${id}`, {
+    return this.makeRequest<Vendor>(`/vendors/${id}`, {
       method: 'PUT',
       body: JSON.stringify(request)
     })
   }
 
   async startVendorResearch(id: string): Promise<ApiResponse<VendorResearchRecord>> {
-    return this.makeRequest<VendorResearchRecord>(`/vendor/${id}/research`, {
+    return this.makeRequest<VendorResearchRecord>(`/research/vendor/${id}`, {
       method: 'POST'
     })
   }
 
   async getVendorResearchHistory(id: string): Promise<ApiResponse<VendorResearchRecord[]>> {
-    return this.makeRequest<VendorResearchRecord[]>(`/vendor/${id}/research`, {
+    return this.makeRequest<VendorResearchRecord[]>(`/research/vendor/${id}`, {
       method: 'GET'
     })
   }
 
   async getVendorResearchById(vendorId: string, researchId: number): Promise<ApiResponse<VendorResearchRecord>> {
-    return this.makeRequest<VendorResearchRecord>(`/vendor/${vendorId}/research/${researchId}`, {
+    return this.makeRequest<VendorResearchRecord>(`/research/vendor/${vendorId}/${researchId}`, {
       method: 'GET'
     })
   }
@@ -310,13 +308,13 @@ export class ApiService {
 
   // Reviews
   async getVendorReviews(vendorId: string): Promise<ApiResponse<Review[]>> {
-    return this.makeRequest<Review[]>(`/vendor/${vendorId}/ratings`, {
+    return this.makeRequest<Review[]>(`/vendors/${vendorId}/ratings`, {
       method: 'GET'
     })
   }
 
   async createReview(request: ReviewCreateRequest): Promise<ApiResponse<Review>> {
-    return this.makeRequest<Review>(`/vendor/${request.vendorId}/ratings`, {
+    return this.makeRequest<Review>(`/vendors/${request.vendorId}/ratings`, {
       method: 'POST',
       body: JSON.stringify(request)
     })
@@ -353,13 +351,13 @@ export class ApiService {
   }
 
   async getVendorVerificationRequests(): Promise<ApiResponse<Vendor[]>> {
-    return this.makeRequest<Vendor[]>(`/vendor/verification-requests`, {
+    return this.makeRequest<Vendor[]>(`/admin/verification-requests`, {
       method: 'GET'
     })
   }
 
   async verifyVendor(id: string): Promise<ApiResponse<Vendor>> {
-    return this.makeRequest<Vendor>(`/vendor/verification-requests/${id}/verify`, {
+    return this.makeRequest<Vendor>(`/admin/verification-requests/${id}/verify`, {
       method: 'POST'
     })
   }
@@ -378,12 +376,23 @@ export class ApiService {
   }
 
   async approveVendorClaim(claimId: string, approved: boolean, reason?: string): Promise<ApiResponse<VendorClaim>> {
-    return this.makeRequest<VendorClaim>(`/vendor/claims/${claimId}/decision`, {
+    return this.makeRequest<VendorClaim>(`/admin/claims/${claimId}/decision`, {
       method: 'POST',
       body: JSON.stringify({
         approve: approved,
         rejectionReason: reason
       })
+    })
+  }
+
+  async uploadVendorCsv(file: File): Promise<ApiResponse<{ message: string; success: number; errors: string[]; totalProcessed: number }>> {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    return this.makeRequest(`/admin/upload-csv`, {
+      method: 'POST',
+      body: formData,
+      headers: {} // Don't set Content-Type, let browser set it with boundary for FormData
     })
   }
 

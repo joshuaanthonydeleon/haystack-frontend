@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Search, Building2, User, Menu, LogOut } from 'lucide-react'
+import { Building2, User, Menu, LogOut } from 'lucide-react'
 import { Button } from './ui/button'
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
@@ -23,55 +23,49 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {/* Always show public pages */}
-            <Link 
-              to="/vendors" 
+            <Link
+              to="/vendors"
               className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
             >
               Find Vendors
             </Link>
-            
+
             {/* Show authenticated user links */}
             {isAuthenticated && (
-              <Link 
-                to="/dashboard" 
+              <Link
+                to="/dashboard"
                 className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Dashboard
               </Link>
             )}
-            
+
             {/* Show vendor claim link for non-vendors */}
             {(!isAuthenticated || !hasRole('vendor')) && (
-              <Link 
-                to="/claim" 
+              <Link
+                to="/claim"
                 className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Claim Your Profile
               </Link>
             )}
-            
+
             {/* Vendor-specific links */}
             {hasRole('vendor') && (
               <>
-                <Link 
-                  to="/vendor/dashboard" 
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Vendor Portal
-                </Link>
-                <Link 
-                  to="/vendor/verify" 
+                <Link
+                  to="/vendor/verify"
                   className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Verification
                 </Link>
               </>
             )}
-            
+
             {/* Admin-specific links */}
             {hasRole('admin') && (
-              <Link 
-                to="/admin/dashboard" 
+              <Link
+                to="/admin/dashboard"
                 className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Admin Panel
@@ -81,22 +75,18 @@ const Header = () => {
 
           {/* Right side buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" size="sm" className="flex items-center space-x-1">
-              <Search className="h-4 w-4" />
-              <span>Search</span>
-            </Button>
-            
+
             {isAuthenticated ? (
               <>
                 <Link to="/profile">
                   <Button variant="outline" size="sm" className="flex items-center space-x-1">
                     <User className="h-4 w-4" />
-                    <span>{user?.name || 'Profile'}</span>
+                    <span>{user?.firstName && user?.lastName ? `${user?.firstName} ${user?.lastName}` : 'Profile'}</span>
                   </Button>
                 </Link>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={signOut}
                   className="flex items-center space-x-1"
                 >
@@ -105,8 +95,8 @@ const Header = () => {
                 </Button>
               </>
             ) : (
-              <Link to="/auth/signin">
-                <Button size="sm">Sign In</Button>
+              <Link to="/auth/signin" search={{ redirect: '/dashboard' }}>
+                <Button size="sm" className="bg-blue-600 text-white hover:bg-blue-700 px-8">Sign In</Button>
               </Link>
             )}
           </div>
@@ -127,45 +117,45 @@ const Header = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <Link 
-                to="/vendors" 
+              <Link
+                to="/vendors"
                 className="block text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Find Vendors
               </Link>
-              
+
               {isAuthenticated && (
-                <Link 
-                  to="/dashboard" 
+                <Link
+                  to="/dashboard"
                   className="block text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Dashboard
                 </Link>
               )}
-              
+
               {(!isAuthenticated || !hasRole('vendor')) && (
-                <Link 
-                  to="/claim" 
+                <Link
+                  to="/claim"
                   className="block text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Claim Your Profile
                 </Link>
               )}
-              
+
               {hasRole('vendor') && (
                 <>
-                  <Link 
-                    to="/vendor/dashboard" 
+                  <Link
+                    to="/vendor/dashboard"
                     className="block text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Vendor Portal
                   </Link>
-                  <Link 
-                    to="/vendor/verify" 
+                  <Link
+                    to="/vendor/verify"
                     className="block text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -173,23 +163,23 @@ const Header = () => {
                   </Link>
                 </>
               )}
-              
+
               {hasRole('admin') && (
-                <Link 
-                  to="/admin/dashboard" 
+                <Link
+                  to="/admin/dashboard"
                   className="block text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-base font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Admin Panel
                 </Link>
               )}
-              
+
               <div className="pt-4 pb-3 border-t border-gray-200">
                 <div className="flex items-center px-4 space-x-3">
                   {isAuthenticated ? (
-                    <Button 
-                      size="sm" 
-                      className="w-full" 
+                    <Button
+                      size="sm"
+                      className="w-full"
                       onClick={() => {
                         signOut()
                         setIsMobileMenuOpen(false)

@@ -1,9 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState, useEffect } from 'react'
+import { z } from 'zod'
 import {
   Activity,
   BarChart3,
   Building2,
+  FileText,
   Shield,
   TrendingUp,
 } from 'lucide-react'
@@ -12,12 +14,17 @@ import {
   OverviewTab,
   VendorsTab,
   VerificationRequestsTab,
+  ClaimsTab,
   AnalyticsTab,
   ActivityTab,
 } from './components'
-import type { AdminMetrics, VendorPerformanceMetrics, Vendor } from '../../types/api'
+import type { AdminMetrics, VendorPerformanceMetrics, Vendor, VendorClaim } from '../../types/api'
 import { VendorCategory, VendorStatus } from '../../types/api'
 import { apiService } from '../../services/api'
+
+const adminDashboardSearchSchema = z.object({
+  tab: z.string().optional().default('overview'),
+})
 
 export const Route = createFileRoute('/admin/dashboard')({
   component: () => (
@@ -25,13 +32,17 @@ export const Route = createFileRoute('/admin/dashboard')({
       <AdminDashboard />
     </AuthGuard>
   ),
+  validateSearch: adminDashboardSearchSchema,
 })
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('overview')
+  const { tab } = Route.useSearch()
+  const navigate = Route.useNavigate()
+  const [activeTab, setActiveTab] = useState(tab)
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null)
   const [performanceData, setPerformanceData] = useState<VendorPerformanceMetrics[]>([])
   const [pendingVerifications, setPendingVerifications] = useState<Vendor[]>([])
+  const [pendingClaims, setPendingClaims] = useState<VendorClaim[]>([])
   const [vendors, setVendors] = useState<Vendor[]>([])
   const [vendorFilters, setVendorFilters] = useState<{ status: 'all' | VendorStatus; category: 'all' | VendorCategory }>({
     status: 'all',
@@ -40,20 +51,33 @@ const AdminDashboard = () => {
   const [vendorError, setVendorError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Sync activeTab with URL search params
+  useEffect(() => {
+    setActiveTab(tab)
+  }, [tab])
+
+  // Function to handle tab changes and update URL
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab)
+    navigate({ search: { tab: newTab } })
+  }
+
   useEffect(() => {
     const loadAdminData = async () => {
       try {
         setVendorError(null)
 
-        const [metricsRes, performanceRes, verificationRequestsRes] = await Promise.all([
+        const [metricsRes, performanceRes, verificationRequestsRes, claimsRes] = await Promise.all([
           apiService.getAdminMetrics(),
           apiService.getVendorPerformanceMetrics(),
-          apiService.getVendorVerificationRequests()
+          apiService.getVendorVerificationRequests(),
+          apiService.getVendorClaims()
         ])
 
         if (metricsRes.success) setMetrics(metricsRes.data)
         if (performanceRes.success) setPerformanceData(performanceRes.data)
         if (verificationRequestsRes.success) setPendingVerifications(verificationRequestsRes.data)
+        if (claimsRes.success) setPendingClaims(claimsRes.data.filter(claim => claim.status === 'pending'))
       } catch (error) {
         console.error('Failed to load admin data:', error)
         setVendorError('Failed to load vendors')
@@ -69,6 +93,7 @@ const AdminDashboard = () => {
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'vendors', label: 'Vendor Management', icon: Building2 },
     { id: 'verification-requests', label: 'Verification Requests', icon: Shield },
+    { id: 'claims', label: 'Vendor Claims', icon: FileText },
     { id: 'analytics', label: 'Performance Analytics', icon: TrendingUp },
     { id: 'activity', label: 'Recent Activity', icon: Activity },
   ]
@@ -97,7 +122,7 @@ const AdminDashboard = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
-        return <OverviewTab metrics={metrics} onTabChange={setActiveTab} />
+        return <OverviewTab metrics={metrics} onTabChange={handleTabChange} />
       case 'vendors':
         return (
           <VendorsTab
@@ -117,10 +142,19 @@ const AdminDashboard = () => {
             }}
           />
         )
+      case 'claims':
+        return (
+          <ClaimsTab
+            pendingClaims={pendingClaims}
+            onClaimCompleted={(claimId) => {
+              setPendingClaims(prev => prev.filter(claim => claim.id !== claimId))
+            }}
+          />
+        )
       case 'analytics':
         return <AnalyticsTab performanceData={performanceData} />
       case 'activity':
-        return <ActivityTab metrics={metrics} />
+        return <ActivityTab metrics={metrics} setMetrics={setMetrics} />
       default:
         return <OverviewTab metrics={metrics} onTabChange={setActiveTab} />
     }
@@ -148,7 +182,7 @@ const AdminDashboard = () => {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => handleTabChange(tab.id)}
                     className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -159,6 +193,11 @@ const AdminDashboard = () => {
                     {tab.id === 'verification-requests' && pendingVerifications.length > 0 && (
                       <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
                         {pendingVerifications.length}
+                      </span>
+                    )}
+                    {tab.id === 'claims' && pendingClaims.length > 0 && (
+                      <span className="bg-orange-500 text-white text-xs rounded-full px-2 py-0.5">
+                        {pendingClaims.length}
                       </span>
                     )}
                   </button>

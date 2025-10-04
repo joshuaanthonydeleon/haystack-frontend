@@ -6,7 +6,7 @@ import { AuthGuard } from '../components/guards/AuthGuard'
 
 export const Route = createFileRoute('/dashboard')({
   component: () => (
-    <AuthGuard requiredRole={['bank', 'credit-union', 'vendor', 'admin']}>
+    <AuthGuard requiredRole={['vendor', 'admin']}>
       <Dashboard />
     </AuthGuard>
   ),

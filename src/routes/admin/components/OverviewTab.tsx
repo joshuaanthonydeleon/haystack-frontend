@@ -1,9 +1,7 @@
 import {
   Activity,
-  BarChart3,
   Building2,
   Calendar,
-  Download,
   Eye,
   FileText,
   Shield,
@@ -152,24 +150,20 @@ export const OverviewTab = ({ metrics, onTabChange }: OverviewTabProps) => {
       {/* Quick Actions */}
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-        <div className="grid md:grid-cols-4 gap-4">
+        <div className="flex flex-col md:flex-row gap-2">
           <Button
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 flex-1"
             onClick={() => onTabChange('verification-requests')}
           >
             <Shield className="w-4 h-4" />
             Review Verification Requests
           </Button>
-          <Button variant="outline" className="flex items-center gap-2">
-            <Download className="w-4 h-4" />
-            Export Data
-          </Button>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button variant="outline" className="flex items-center gap-2 flex-1">
             <Eye className="w-4 h-4" />
             View Reports
           </Button>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button variant="outline" className="flex items-center gap-2 flex-1">
             <FileText className="w-4 h-4" />
             System Logs
           </Button>

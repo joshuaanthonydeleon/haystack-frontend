@@ -13,6 +13,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ClaimRouteImport } from './routes/claim'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as VendorsIndexRouteImport } from './routes/vendors/index'
 import { Route as ProfileIndexRouteImport } from './routes/profile/index'
 import { Route as VendorsVerifyRouteImport } from './routes/vendors/verify'
 import { Route as ComplianceVendorIdRouteImport } from './routes/compliance.$vendorId'
@@ -49,6 +50,11 @@ const SplatRoute = SplatRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VendorsIndexRoute = VendorsIndexRouteImport.update({
+  id: '/vendors/',
+  path: '/vendors/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileIndexRoute = ProfileIndexRouteImport.update({
@@ -156,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/compliance/$vendorId': typeof ComplianceVendorIdRoute
   '/vendors/verify': typeof VendorsVerifyRoute
   '/profile': typeof ProfileIndexRoute
+  '/vendors': typeof VendorsIndexRoute
   '/vendors/$vendorId/dashboard': typeof VendorsVendorIdDashboardRoute
   '/admin/vendors': typeof AdminVendorsIndexRoute
   '/products/$productId': typeof ProductsProductIdIndexRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByTo {
   '/compliance/$vendorId': typeof ComplianceVendorIdRoute
   '/vendors/verify': typeof VendorsVerifyRoute
   '/profile': typeof ProfileIndexRoute
+  '/vendors': typeof VendorsIndexRoute
   '/vendors/$vendorId/dashboard': typeof VendorsVendorIdDashboardRoute
   '/admin/vendors': typeof AdminVendorsIndexRoute
   '/products/$productId': typeof ProductsProductIdIndexRoute
@@ -203,6 +211,7 @@ export interface FileRoutesById {
   '/compliance/$vendorId': typeof ComplianceVendorIdRoute
   '/vendors/verify': typeof VendorsVerifyRoute
   '/profile/': typeof ProfileIndexRoute
+  '/vendors/': typeof VendorsIndexRoute
   '/vendors/$vendorId/dashboard': typeof VendorsVendorIdDashboardRoute
   '/admin/vendors/': typeof AdminVendorsIndexRoute
   '/products/$productId/': typeof ProductsProductIdIndexRoute
@@ -228,6 +237,7 @@ export interface FileRouteTypes {
     | '/compliance/$vendorId'
     | '/vendors/verify'
     | '/profile'
+    | '/vendors'
     | '/vendors/$vendorId/dashboard'
     | '/admin/vendors'
     | '/products/$productId'
@@ -251,6 +261,7 @@ export interface FileRouteTypes {
     | '/compliance/$vendorId'
     | '/vendors/verify'
     | '/profile'
+    | '/vendors'
     | '/vendors/$vendorId/dashboard'
     | '/admin/vendors'
     | '/products/$productId'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/compliance/$vendorId'
     | '/vendors/verify'
     | '/profile/'
+    | '/vendors/'
     | '/vendors/$vendorId/dashboard'
     | '/admin/vendors/'
     | '/products/$productId/'
@@ -298,6 +310,7 @@ export interface RootRouteChildren {
   ComplianceVendorIdRoute: typeof ComplianceVendorIdRoute
   VendorsVerifyRoute: typeof VendorsVerifyRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
+  VendorsIndexRoute: typeof VendorsIndexRoute
   VendorsVendorIdDashboardRoute: typeof VendorsVendorIdDashboardRoute
   AdminVendorsIndexRoute: typeof AdminVendorsIndexRoute
   ProductsProductIdIndexRoute: typeof ProductsProductIdIndexRoute
@@ -336,6 +349,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vendors/': {
+      id: '/vendors/'
+      path: '/vendors'
+      fullPath: '/vendors'
+      preLoaderRoute: typeof VendorsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile/': {
@@ -474,6 +494,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComplianceVendorIdRoute: ComplianceVendorIdRoute,
   VendorsVerifyRoute: VendorsVerifyRoute,
   ProfileIndexRoute: ProfileIndexRoute,
+  VendorsIndexRoute: VendorsIndexRoute,
   VendorsVendorIdDashboardRoute: VendorsVendorIdDashboardRoute,
   AdminVendorsIndexRoute: AdminVendorsIndexRoute,
   ProductsProductIdIndexRoute: ProductsProductIdIndexRoute,

@@ -1,12 +1,21 @@
 import { Clock } from 'lucide-react'
 import { Button } from '../../../components/ui/button'
 import type { AdminMetrics } from '../../../types/api'
+import { apiService } from '@/services/api'
 
 interface ActivityTabProps {
   metrics: AdminMetrics | null
+  setMetrics: (metrics: AdminMetrics) => void
 }
 
-export const ActivityTab = ({ metrics }: ActivityTabProps) => {
+export const ActivityTab = ({ metrics, setMetrics }: ActivityTabProps) => {
+  const handleRefresh = async () => {
+    const metricsRes = await apiService.getAdminMetrics()
+    if (metricsRes.success) {
+      setMetrics(metricsRes.data)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Recent Activity</h2>
@@ -22,7 +31,7 @@ export const ActivityTab = ({ metrics }: ActivityTabProps) => {
                 <option value="user">User Actions</option>
                 <option value="system">System Events</option>
               </select>
-              <Button variant="outline" size="sm">Refresh</Button>
+              <Button onClick={handleRefresh} variant="outline" size="sm">Refresh</Button>
             </div>
           </div>
         </div>
