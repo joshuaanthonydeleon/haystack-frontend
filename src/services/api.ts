@@ -285,25 +285,15 @@ export class ApiService {
 
   // TODO: make sure all of these are implmented on the backend
   // Demo Requests
-  async createDemoRequest(request: DemoRequestCreateRequest): Promise<ApiResponse<DemoRequest>> {
-    const vendorId = typeof request.vendorId === 'string'
-      ? Number.parseInt(request.vendorId, 10)
-      : request.vendorId
-
-    const payload = {
-      ...request,
-      vendorId
-    }
-
-    return this.makeRequest<DemoRequest>('/demo-requests', {
+  async createDemoRequest(vendorId: string, request: DemoRequestCreateRequest): Promise<ApiResponse<DemoRequest>> {
+    return this.makeRequest<DemoRequest>(`/demo-requests/${vendorId}`, {
       method: 'POST',
-      body: JSON.stringify(payload)
+      body: JSON.stringify(request)
     })
   }
 
-  async getDemoRequests(vendorId?: string): Promise<ApiResponse<DemoRequest[]>> {
-    const query = vendorId ? `?vendorId=${encodeURIComponent(vendorId)}` : ''
-    return this.makeRequest<DemoRequest[]>(`/demo-requests${query}`, {
+  async getDemoRequests(vendorId: string): Promise<ApiResponse<DemoRequest[]>> {
+    return this.makeRequest<DemoRequest[]>(`/demo-requests/${vendorId}`, {
       method: 'GET'
     })
   }

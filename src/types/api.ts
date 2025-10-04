@@ -302,15 +302,7 @@ export interface DemoRequest {
 }
 
 export interface DemoRequestCreateRequest {
-  vendorId: string
-  firstName: string
-  lastName: string
-  email: string
-  phone?: string
-  bankName: string
-  title: string
-  assetsUnderManagement: string
-  currentProvider?: string
+  userId: number
   timeline: string
   preferredTime: string
   message?: string
